@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './TaxCalculator.css';
+import './TaxCalculator.scss';
 
 class TaxCalculator extends Component {
   render() {
