@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './TaxCalculator.scss';
-import TaxCalculatorFooter from './TaxCalculatorFooter';
 import TaxCalculatorContent from './TaxCalculatorContent';
 import TaxCalculatorHeader from './TaxCalculatorHeader';
 
@@ -12,22 +11,53 @@ class TaxCalculator extends Component {
       loading: true,
       products: {},
       schema: {},
+      imports: {
+        products: 'http://127.0.0.1:3030/json/products.json',
+        schema: 'http://127.0.0.1:3030/json/anlageangebote_liste.json',
+      },
+      amount: 1000,
+      categories: ['flex', 'fixed', 'both'],
+      durations: [1, 2, 3],
+
     }
   }
 
-  fetchUrl(url) {
-    return fetch(url)
-      .then(
-        (result) => {
-          return result.json();
-        }
+  render() {
+    const { loading, products, schema } = this.state;
+
+    if (loading) {
+      return (
+        <section className="TaxCalculator">
+          <div className="loader">Loading... </div>
+        </section>
+      )
+    } else {
+      return (
+        <section className="TaxCalculator">
+          <TaxCalculatorHeader amount={this.state.amount} category={this.state.categories} durations={this.state.durations} />
+          <TaxCalculatorContent products={products} schema={schema} />
+          <TaxCalculatorFooter />
+        </section>
       );
+    }
   }
 
+  
+  
   componentDidMount() {
     Promise.all([
-      this.fetchUrl('http://127.0.0.1:3030/json/products.json'),
-      this.fetchUrl('http://127.0.0.1:3030/json/anlageangebote_liste.json'),
+      fetch(this.state.imports.products)
+        .then(
+          (result) => {
+            return result.json();
+          }
+        ),
+      fetch(this.state.imports.schema)
+        .then(
+          (result) => {
+            return result.json();
+          }
+        )
     ]).then(
       (values) => {
         this.setState({
@@ -39,25 +69,19 @@ class TaxCalculator extends Component {
     );
   }
 
-  render() {
-    const { loading, products, schema } = this.state;
-    
-    if (loading) {
-      return (
-        <section className="TaxCalculator">
-          <div className="loader">Loading... </div>
-        </section>
-      )
-    } else {
-      return (
-        <section className="TaxCalculator">
-          <TaxCalculatorHeader />
-          <TaxCalculatorContent products={products} schema={schema} />
-          <TaxCalculatorFooter />
-        </section>
-      );
-    }
+  componentWillUnmount() {
+    this.setState({})
   }
+}
+
+function TaxCalculatorFooter() {
+  return (
+    <div className="TaxCalculator-footer">
+      <div className="TaxCalculator-footer-text">
+        <sup>*</sup> Berechnete Zinserträge verstehen sich als Näherungswerte und beziehen sich auf die Produktlaufzeit. Maßgeblich für die Verzinsung sind das Angebot und die Berechnungsmethode der Bank. Für Tages- und Flexgeld24 wird ein konstanter Zins unterstellt.
+      </div>
+    </div>
+  )
 }
 
 export default TaxCalculator;
