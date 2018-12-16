@@ -10,8 +10,8 @@ export class TaxCalculatorContent extends Component {
     }
 
     render() {
-        console.log(this.props.products);
-        console.log(this.props.schema);
+        // console.log(this.props.products);
+        // console.log(this.props.schema);
 
         return (
             
