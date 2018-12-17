@@ -13,17 +13,20 @@ class TaxCalculator extends Component {
       amount: 1000,
       categoryActive: 'both',
       durationActive: 'all',
-      durations: [1, 2, 3],
+      durations: [],
+      tracker: {trackingEnable: false, clientId: this.createUniqueId()},
     }
     this.imports = {
       products: 'http://127.0.0.1:3030/json/products.json',
       schema: 'http://127.0.0.1:3030/json/anlageangebote_liste.json',
     }
+    this.notToPromote = ['HSHNDEHH', 'CPLUDES1XXX']
     this.amountPlaceholder = '1.000 €'
     this.categories = ['both', 'flex', 'fixed']
     this.handleAmountChange = this.handleAmountChange.bind(this)
     this.handleSwitchClick = this.handleSwitchClick.bind(this)
     this.handleDurationChange = this.handleDurationChange.bind(this)
+    this.handleDurationsAddition = this.handleDurationsAddition.bind(this)
   }
 
   render() {
@@ -39,23 +42,20 @@ class TaxCalculator extends Component {
       return (
         <section className="TaxCalculator">
           <div className="TaxCalculator-header">
-            <div>
-              <label>Betrag
-                <AmountInput value={this.state.amount} onInputChange={this.handleAmountChange} placeholder={this.amountPlaceholder} />
-              </label>
-            </div>
+            <AmountInput value={this.state.amount} onInputChange={this.handleAmountChange} placeholder={this.amountPlaceholder} />
             <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
-            <div>
-              <label>Laufzeit
-                <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
-              </label>
-            </div>
+            <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
           </div>
-          <TaxCalculatorContent products={products} schema={schema} />
+          <TaxCalculatorContent products={products} schema={schema} notToPromote={this.notToPromote} handleDurationsAddition={this.handleDurationsAddition} />
+          <DisplayProps amount={this.state.amount} categoryActive={this.state.categoryActive} durationActive={this.state.durationActive} />
           <TaxCalculatorFooter />
         </section>
       );
     }
+  }
+
+  handleDurationsAddition(list) {
+    this.setState({durations: list});
   }
 
   handleDurationChange(event) {
@@ -67,7 +67,11 @@ class TaxCalculator extends Component {
   }
 
   handleAmountChange(event) {
-    this.setState({amount: event.target.value});
+    let input = parseInt(event.target.value)
+    if(Number.isNaN(input)) {
+      input = ''
+    }
+    this.setState({amount: input});
   }
   
   componentDidMount() {
@@ -94,21 +98,45 @@ class TaxCalculator extends Component {
       }
     );
   }
+
+  createUniqueId() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+  }
+
+  trackAction(trackingData) {
+    if (this.state.tracker.trackingEnable && trackingData !== {}) {
+        var gtmData = {'taxInterestCalculator': Object.assign(trackingData, this.fillTrackState())};
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push(gtmData);
+    }
+  }
+
+  fillTrackState() {
+    return {
+      'event': 'zinsrechner',
+      'clientId': this.state.tracker.clientId,
+      'amount': this.state.amount,
+      'button': this.state.categoryActive,
+      'duration': this.state.durationActive
+    };
+  }
 }
 
 function AmountInput(props) {
-  let input = parseInt(props.value)
-    if(Number.isNaN(input)) {
-      input = ''
-    }
-
   return (
-    <input type="text" name="dash-amount" className="dashboard-item-amount"
-      id="dash-amount" maxLength="9" 
-      placeholder={props.placeholder}
-      value={input}
-      onChange={props.onInputChange}
-       />
+    <div>
+      <label>Betrag
+        <input type="text" name="dash-amount" className="dashboard-item-amount"
+          id="dash-amount" maxLength="9" 
+          placeholder={props.placeholder}
+          value={props.value}
+          onChange={props.onInputChange}
+          />
+      </label>
+    </div>
   );
 }
 
@@ -130,11 +158,15 @@ function Duration(props) {
     return (<DurationOption duration={v} key={i} />)
   });
   return (
-    <select id="dash-maturity" name="dash-maturity" value={props.value} onChange={props.onSelectChange}>
-      <option value="all" data-duration="all">Alle anzeigen</option>
-      <option value="p.a." data-duration="p.a.">Tages-/Flexgeld</option>
-      {options}
-    </select>
+    <div>
+      <label>Laufzeit
+        <select id="dash-maturity" name="dash-maturity" value={props.value} onChange={props.onSelectChange}>
+          <option value="all" data-duration="all">Alle anzeigen</option>
+          <option value="p.a." data-duration="p.a.">Tages-/Flexgeld</option>
+          {options}
+        </select>
+      </label>
+    </div>
   );
 }
 
@@ -153,6 +185,14 @@ function TaxCalculatorFooter() {
       </div>
     </div>
   )
+}
+
+function DisplayProps(props) {
+  return (
+    <code>{props.amount} | 
+          {props.categoryActive} | 
+          {props.durationActive}</code>
+  );
 }
 
 export default TaxCalculator;
