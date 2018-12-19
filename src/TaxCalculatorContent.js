@@ -83,20 +83,20 @@ export class TaxCalculatorContent extends Component {
     if (productBankBic === 'HAABAT2K') {
       imageSrc = 'https://via.placeholder.com/120x53?logo=csm_Anadi_Logo_192d674e89.png';
       link = '/#anadi';
-      settings.productBankCountry = '&Ouml;sterreich';
+      settings.productBankCountry = 'Österreich';
     } else if (productBankBic === 'BUCUROBU') {
       imageSrc = 'https://via.placeholder.com/120x53?logo=logo_alpha_bank_160x34.png';
       link = '/#alpha';
-      settings.productBankCountry = 'Rum&auml;nien';
+      settings.productBankCountry = 'Rumänien';
     } else if (productBankBic === 'ATMBGB22') {
       imageSrc = 'https://via.placeholder.com/120x53?logo=banklogo/atombank_logo.png';
       link = '/#atom';
-      settings.productBankCountry = 'Gro&szlig;britannien';
+      settings.productBankCountry = 'Großbritannien';
       settings.showTooltip = 'Einlagen sind pro Kunde bis 85.000 GBP zu 100 % abgesichert.';
     } else if (productBankBic === 'CBRLGB2L') {
       imageSrc = 'https://via.placeholder.com/120x53?logo=Close_Brothers_Savings_Logo.png';
       link = '/#closebrothers';
-      settings.productBankCountry = 'Gro&szlig;britannien';
+      settings.productBankCountry = 'Großbritannien';
       settings.showTooltip = 'Einlagen sind pro Kunde bis 85.000 GBP zu 100 % abgesichert.';
     } else if (productBankBic === 'PARXLV22') {
       imageSrc = 'https://via.placeholder.com/120x53?logo=Citadele_Logo_klein.jpg';
