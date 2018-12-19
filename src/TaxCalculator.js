@@ -47,7 +47,6 @@ class TaxCalculator extends Component {
             <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
           </div>
           <TaxCalculatorContent products={products} schema={schema} notToPromote={this.notToPromote} handleDurationsAddition={this.handleDurationsAddition} amount={this.state.amount} />
-          <DisplayProps amount={this.state.amount} categoryActive={this.state.categoryActive} durationActive={this.state.durationActive} />
           <TaxCalculatorFooter />
         </section>
       );
@@ -185,14 +184,6 @@ function TaxCalculatorFooter() {
       </div>
     </div>
   )
-}
-
-function DisplayProps(props) {
-  return (
-    <code>{props.amount} | 
-          {props.categoryActive} | 
-          {props.durationActive}</code>
-  );
 }
 
 export default TaxCalculator;
