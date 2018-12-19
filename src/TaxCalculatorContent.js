@@ -29,7 +29,7 @@ export class TaxCalculatorContent extends Component {
           showAmountNote = (maturityCodeTerm === 'fixed') ? '' : ' p.a.',
           abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
 
-        children[abstractSortNumber] = <Child key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} showRatePreview={showRatePreview} durationClear={durationClear} showAmountNote={showAmountNote} />
+        children[abstractSortNumber] = <Child key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} showRatePreview={showRatePreview} durationClear={durationClear} showAmountNote={showAmountNote} amount={this.props.amount} />
 
         //Add up fixed-items to Maturity-Filter Array, if not allready in
         if ((this.state.filterList).indexOf(pp.duration) === -1) {
@@ -226,6 +226,18 @@ function ProductBankLogo(props) {
 }
 
 function Child(props) {
+  const amount = (!isNaN(props.amount) && props.amount >= 0)? props.amount: 0
+  const rate = props.rates.rate
+  const duration = props.pp.duration
+  const term = props.maturityCodeTerm
+  let calculatedAmount
+
+  if (term === 'fixed'){
+    calculatedAmount = ((amount * rate) / 12 * duration).toFixed(2).replace('.', ',');
+  } else if(term === 'flex'){
+    calculatedAmount = ((amount * rate)).toFixed(2).replace('.', ',')
+  }
+
   return (
     <ul className="calc-list-row" data-term={props.maturityCodeTerm}>
       <li className="calc-item-rate hidden-xs" data-rate={props.rates.rate}>{props.rates.ratesClear}&nbsp;%
@@ -253,7 +265,7 @@ function Child(props) {
         </div>
       </li>
       <li className="calc-item-amount hidden-xs">
-        <span className="calc-amount-price">0,00</span>
+        <span className="calc-amount-price">{calculatedAmount}</span>
         <span className="calc-amount-currency">&euro;</span>
         <div className="calc-sub-note">
           <span className="amount-note-text">Zinsertrag {props.showAmountNote} <sup>*</sup></span>
