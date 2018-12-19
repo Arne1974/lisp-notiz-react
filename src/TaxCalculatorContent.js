@@ -25,7 +25,7 @@ export class TaxCalculatorContent extends Component {
           maturityCodeTerm = ((maturityCode).toLowerCase().indexOf('fixed') >= 0) ? 'fixed' : 'flex',
           rates = this.buildRates(p.interestRateOverTime, usp, p.depositType),
           showRatePreview = (rates.previewRate) ? 'Ab ' + rates.previewClear + ': ' + rates.previewRate + ' %' : '',
-          durationClear = (pp.duration === 12 && maturityCodeTerm === 'flex') ? 'Tagesgeld/<br>Flexgeld' : pp.duration + ' Monate',
+          durationClear = <DurationClear duration={pp.duration} term={maturityCodeTerm} />,
           showAmountNote = (maturityCodeTerm === 'fixed') ? '' : ' p.a.',
           abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
 
@@ -225,6 +225,22 @@ function ProductBankLogo(props) {
   );
 }
 
+function DurationClear(props){
+  if(props.duration === 12 && props.term === 'flex'){
+    return (
+      <span className="maturitycode-duration-wrapper">
+        Tagesgeld/<br />Flexgeld
+      </span>
+    )
+  } else {
+    return (
+      <span className="maturitycode-duration-wrapper">
+        {props.duration} Monate
+      </span>
+    )
+  }
+}
+
 function Child(props) {
   const amount = (!isNaN(props.amount) && props.amount >= 0)? props.amount: 0
   const rate = props.rates.rate
@@ -247,7 +263,7 @@ function Child(props) {
       </li>
       <li className="calc-item-maturitycode" data-duration={props.pp.duration}>
         {props.pp.announcement}
-        <span className="maturitycode-duration-wrapper">{props.durationClear}</span>
+        {props.durationClear}
         <div className="calc-sub-note hidden-xs">
           <span className="maturitycode-explain-text">Laufzeit</span>
         </div>
