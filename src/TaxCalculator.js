@@ -126,7 +126,7 @@ class TaxCalculator extends Component {
 
 function AmountInput(props) {
   return (
-    <div>
+    <div className="hidden-xs">
       <label>Betrag
         <input type="text" name="dash-amount" className="dashboard-item-amount"
           id="dash-amount" maxLength="9" 
@@ -144,7 +144,7 @@ function Buttons(props) {
   const ActiveFlex = (props.categoryActive==='flex')? 'active': ''
   const ActiveFixed = (props.categoryActive==='fixed')? 'active': ''
   return (
-    <div>
+    <div className="hidden-xs">
       <button onClick={props.onButtonClick} className={ActiveAll} id="all-btn" value="both">alle Angebote</button>
       <button onClick={props.onButtonClick} className={ActiveFlex} id="flex-btn" value="flex">Tagesgeld</button>
       <button onClick={props.onButtonClick} className={ActiveFixed} id="fixed-btn" value="fixed">Festgeld</button>

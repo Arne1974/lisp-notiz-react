@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import {OverlayTrigger, Tooltip} from 'react-bootstrap'
 
 export class TaxCalculatorContent extends Component {
   constructor(props) {
@@ -254,6 +255,12 @@ function Child(props) {
     calculatedAmount = ((amount * rate)).toFixed(2).replace('.', ',')
   }
 
+  const tooltip = (
+    <Tooltip id="tooltip">
+      {props.pp.showTooltip}
+    </Tooltip>
+  )
+
   return (
     <ul className="calc-list-row" data-term={props.maturityCodeTerm}>
       <li className="calc-item-rate hidden-xs" data-rate={props.rates.rate}>{props.rates.ratesClear}&nbsp;%
@@ -271,7 +278,9 @@ function Child(props) {
       <li className="calc-item-productbankname">
         <span className="productbankname-logo-wrapper">{props.pp.productBankLogo}</span>
         <div className="calc-sub-note hidden-xs">
-          <span className="logo-country-text" data-toggle="tooltip" data-placement="bottom" title={props.pp.showTooltip}>{props.pp.productBankCountry}</span>
+          <OverlayTrigger placement="bottom" overlay={tooltip}>
+            <span className="logo-country-text">{props.pp.productBankCountry}</span>
+          </OverlayTrigger>
         </div>
       </li>
       <li className="calc-item-rate visible-xs-block" data-rate={props.rates.rate}>
