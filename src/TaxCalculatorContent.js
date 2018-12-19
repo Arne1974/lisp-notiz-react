@@ -30,7 +30,7 @@ export class TaxCalculatorContent extends Component {
           abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
 
         children[abstractSortNumber] = <Child key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} showRatePreview={showRatePreview} durationClear={durationClear} showAmountNote={showAmountNote} />
-        
+
         //Add up fixed-items to Maturity-Filter Array, if not allready in
         if ((this.state.filterList).indexOf(pp.duration) === -1) {
           this.state.filterList.push(pp.duration);
@@ -58,15 +58,15 @@ export class TaxCalculatorContent extends Component {
 
   buildProperties(productBankBic, productBankName, maturityCode) {
     let settings = {
-        'duration': 12,
-        'productBankCountry': 'tbd',
-        'showTooltip': 'tbd',
-        'urlAnlageangebot': 'https://www.example.org?params=/product/details/' + productBankBic + '/' + maturityCode,
-        'productBankLogo': 'tbd',
-        'sortNumber': 0,
-        'descriptionHtml': '',
-        'special': ''
-      };
+      'duration': 12,
+      'productBankCountry': 'tbd',
+      'showTooltip': 'tbd',
+      'urlAnlageangebot': 'https://www.example.org?params=/product/details/' + productBankBic + '/' + maturityCode,
+      'productBankLogo': 'tbd',
+      'sortNumber': 0,
+      'descriptionHtml': '',
+      'special': ''
+    };
 
     //Duration
     if (maturityCode.toLowerCase().indexOf('fixed') >= 0) {
@@ -189,13 +189,13 @@ export class TaxCalculatorContent extends Component {
   }
 }
 
-function KontoAktivierungsBonus(props){
+function KontoAktivierungsBonus(props) {
   return (
     <a href={props.link} target="_blank" rel="noopener noreferrer">{props.description}</a>
   );
 }
 
-function SpecialAnnouncement(props){
+function SpecialAnnouncement(props) {
   return (
     <div className="item-maturitycode-anouncement">{props.special}</div>
   );
@@ -268,8 +268,12 @@ function Child(props) {
         </div>
       </li>
       <li className="calc-item-cta">
-        <span className="cta-button-wrapper"><a href="https://www.example.org?params=/flows/register" target="_blank" className="btn btn-primary" rel="noopener noreferrer">Jetzt anlegen</a></span>
-        <div className="calc-sub-note hidden-lg hidden-md"><a href={props.pp.urlAnlageangebot} target="_blank" className="cta-more-text" rel="noopener noreferrer">Weitere Informationen</a></div>
+        <span className="cta-button-wrapper">
+          <a href="https://www.example.org?params=/flows/register" target="_blank" className="btn btn-primary" rel="noopener noreferrer">Jetzt anlegen</a>
+        </span>
+        <div className="calc-sub-note hidden-lg hidden-md">
+          <a href={props.pp.urlAnlageangebot} target="_blank" className="cta-more-text" rel="noopener noreferrer">Weitere Informationen</a>
+        </div>
       </li>
     </ul>
   );
