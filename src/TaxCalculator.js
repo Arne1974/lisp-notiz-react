@@ -8,8 +8,7 @@ class TaxCalculator extends Component {
 
     this.state = {
       loading: true,
-      products: {},
-      schema: {},
+      products: [],
       durations: [],
       amount: 1000,
       categoryActive: 'both',
@@ -20,6 +19,7 @@ class TaxCalculator extends Component {
       products: 'http://127.0.0.1:3030/json/products.json',
       schema: 'http://127.0.0.1:3030/json/anlageangebote_liste.json',
     }
+    this.schema = []
     this.notToPromote = ['HSHNDEHH', 'CPLUDES1XXX']
     this.amountPlaceholder = '1.000 €'
     this.categories = ['both', 'flex', 'fixed']
@@ -29,9 +29,7 @@ class TaxCalculator extends Component {
   }
 
   render() {
-    const { loading, products, schema } = this.state;
-
-    if (loading) {
+    if (this.state.loading) {
       return (
         <section className="TaxCalculator">
           <div className="loader">Loading... </div>
@@ -46,8 +44,7 @@ class TaxCalculator extends Component {
             <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
           </div>
           <TaxCalculatorContent 
-            products={products} 
-            schema={schema} 
+            products={this.state.products} 
             amount={this.state.amount}
             categoryActive={this.state.categoryActive}
             durationActive={this.state.durationActive} />
@@ -88,9 +85,9 @@ class TaxCalculator extends Component {
         )
     ]).then(
       (values) => {
+        this.schema = values[1]
         this.setState({
           loading: false,
-          schema: values[1],
           products: this.createContentFromImport(values[0]),
         })
       }
@@ -99,46 +96,126 @@ class TaxCalculator extends Component {
 
   createContentFromImport(importProducts) {
     const scope = this
-    return importProducts.map((e) => {
-      let item = {
-        pb: e.productBank,
-        p: e.product,
-        productBankBic: e.productBank.bank.bic,
-        productBankName: e.productBank.name,
-        maturityCode: e.product.maturityCode,
-        usp: e.upcomingStartDates,
-      }
+    let items = []
+    importProducts.forEach((e, i) => {
 
-      if ((this.notToPromote).indexOf(item.productBankBic) === -1) {
+      if ((this.notToPromote).indexOf(e.productBank.bank.bic) === -1) {
+        let item = {
+          pb: e.productBank,
+          p: e.product,
+          productBankBic: e.productBank.bank.bic,
+          productBankName: e.productBank.name,
+          maturityCode: e.product.maturityCode,
+          usp: e.upcomingStartDates,
+        }
 
         item.maturityCodeTerm = ((item.maturityCode).toLowerCase().indexOf('fixed') >= 0) ? 'fixed' : 'flex'
         item.rates = scope.buildRates(e.product.interestRateOverTime, item.usp, e.product.depositType)
         item.showRatePreview = (item.rates.previewRate) ? 'Ab ' + item.rates.previewClear + ': ' + item.rates.previewRate + ' %' : ''
         item.showAmountNote = (item.maturityCodeTerm === 'fixed') ? '' : ' p.a.'
-        item.pp = {
-          duration: scope.getDuration(item.maturityCode),
-        }
-        
-        // const pp = this.buildProperties(productBankBic, productBankName, maturityCode),
-          // durationClear = <DurationClear duration={pp.duration} term={maturityCodeTerm} />,
-          // abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
+        item.pp = scope.buildProperties(item.productBankBic, item.productBankName, item.maturityCode)
+        item.durationClear = <DurationClear duration={item.pp.duration} term={item.maturityCodeTerm} />
+        item.abstractSortNumber = ((item.pp.sortNumber) ? item.pp.sortNumber : i)
         
         //Add up fixed-items to Maturity-Filter Array, if not allready in
         if ((this.state.durations).indexOf(item.pp.duration) === -1 && item.pp.duration!==undefined) {
           this.state.durations.push(item.pp.duration)
         }
+        
+        items.push(item)
       }
-      this.state.durations.sort((a, b) => (a-b))
-      return item
     });
+
+    // Sort Filter für Laufzeit und sämtliche Products
+    this.state.durations.sort((a, b) => (a-b))
+    return items.sort((a, b) => (a.abstractSortNumber - b.abstractSortNumber))
   }
-  getDuration(maturityCode) {
+  buildProperties(productBankBic, productBankName, maturityCode) {
+    let settings = {
+      'productBankCountry': 'tbd',
+      'showTooltip': 'tbd',
+      'urlAnlageangebot': 'https://www.example.org?params=/product/details/' + productBankBic + '/' + maturityCode,
+      'productBankLogo': 'tbd',
+      'sortNumber': 0,
+      'descriptionHtml': '',
+      'special': '',
+      'duration': 12,
+    };
+
+    //Duration
     if (maturityCode.toLowerCase().indexOf('fixed') >= 0) {
       let term = maturityCode.split('_').pop(),
         patt = /[0-9]*/g,
         result = patt.exec(term);
-      return (term.toLowerCase().indexOf('m') >= 0) ? result[0] : result[0] * 12;
+      settings.duration = (term.toLowerCase().indexOf('m') >= 0) ? result[0] : result[0] * 12;
     }
+
+    //Other
+    let link = '', imageSrc = '';
+    settings.showTooltip = 'Einlagen sind pro Kunde bis 100.000 EUR zu 100 % abgesichert.';
+
+    if (productBankBic === 'HAABAT2K') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=csm_Anadi_Logo_192d674e89.png';
+      link = '/#anadi';
+      settings.productBankCountry = 'Österreich';
+    } else if (productBankBic === 'BUCUROBU') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=logo_alpha_bank_160x34.png';
+      link = '/#alpha';
+      settings.productBankCountry = 'Rumänien';
+    } else if (productBankBic === 'ATMBGB22') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=banklogo/atombank_logo.png';
+      link = '/#atom';
+      settings.productBankCountry = 'Großbritannien';
+      settings.showTooltip = 'Einlagen sind pro Kunde bis 85.000 GBP zu 100 % abgesichert.';
+    } else if (productBankBic === 'CBRLGB2L') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=Close_Brothers_Savings_Logo.png';
+      link = '/#closebrothers';
+      settings.productBankCountry = 'Großbritannien';
+      settings.showTooltip = 'Einlagen sind pro Kunde bis 85.000 GBP zu 100 % abgesichert.';
+    } else if (productBankBic === 'PARXLV22') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=Citadele_Logo_klein.jpg';
+      link = '/#cbl';
+      settings.productBankCountry = 'Lettland';
+    } else if (productBankBic === 'CPLUDES1XXX') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=CP_Logo_transp_v2.png';
+      link = '/#creditplus';
+      settings.productBankCountry = 'Deutschland';
+    } else if (productBankBic === 'FIMBMTM3XXX') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=csm_fimbank_730c9feb99.png';
+      link = '/#fim';
+      settings.productBankCountry = 'Malta';
+    } else if (productBankBic === 'BACCFR22') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=oney_logo_klein.jpg';
+      link = '/#oney';
+      settings.productBankCountry = 'Frankreich';
+    } else if (productBankBic === 'RTMBLV2X') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=RietumuLogo.gif';
+      link = '/#rietumu';
+      settings.productBankCountry = 'Lettland';
+    } else if (productBankBic === 'BDIGPTPL') {
+      imageSrc = 'https://via.placeholder.com/120x53?logo=big_logo.png';
+      link = '/#bigbank';
+      settings.productBankCountry = 'Portugal';
+    } else {
+      imageSrc = 'https://via.placeholder.com/120x53';
+      link = 'https://www.example.org/';
+      settings.productBankCountry = 'Utopia';
+    }
+    settings.productBankLogo = <ProductBankLogo link={link} productBankName={productBankName} imageSrc={imageSrc} />
+
+    //SortNumber
+    this.schema.forEach((e) => {
+      if (maturityCode === e.maturity && productBankBic === e.bic) {
+        settings.sortNumber = e.sort_no;
+        settings.descriptionHtml = <RenderDescription desc1={e.desc1} desc2={e.desc2} desc3={e.desc3} bonusurl={e.bonusurl} />
+
+        if (e.special !== undefined && e.special !== '') {
+          settings.announcement = <SpecialAnnouncement special={e.special} />
+        }
+      }
+    });
+
+    return settings;
   }
   buildRates(r, usp, depositType) {
     let rate = {}, d = new Date(),
@@ -270,6 +347,58 @@ function TaxCalculatorFooter() {
       </div>
     </div>
   )
+}
+
+function SpecialAnnouncement(props) {
+  return (
+    <div className="item-maturitycode-anouncement">{props.special}</div>
+  );
+}
+
+function RenderDescription(props) {
+  if (props.desc1 !== '') {
+    let desc2 = props.desc2
+    if (props.bonusurl !== undefined && props.bonusurl !== '') {
+      desc2 = <KontoAktivierungsBonus link={props.bonusurl} description={props.desc2} />;
+    }
+    return (
+      <ul className="description-text-list">
+        <li>{props.desc1}</li>
+        <li>{desc2}</li>
+        <li>{props.desc3}</li>
+      </ul>
+    );
+  }
+}
+
+function ProductBankLogo(props) {
+  return (
+    <a href={props.link} target="_blank" title={props.productBankName} rel="noopener noreferrer">
+      <img src={props.imageSrc} alt={props.productBankName} />
+    </a>
+  );
+}
+
+function KontoAktivierungsBonus(props) {
+  return (
+    <a href={props.link} target="_blank" rel="noopener noreferrer">{props.description}</a>
+  );
+}
+
+function DurationClear(props){
+  if(props.duration === 12 && props.term === 'flex'){
+    return (
+      <span className="maturitycode-duration-wrapper">
+        Tagesgeld/<br />Flexgeld
+      </span>
+    )
+  } else {
+    return (
+      <span className="maturitycode-duration-wrapper">
+        {props.duration} Monate
+      </span>
+    )
+  }
 }
 
 export default TaxCalculator;
