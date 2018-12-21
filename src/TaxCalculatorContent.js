@@ -6,24 +6,29 @@ export class TaxCalculatorContent extends Component {
     super(props)
 
     this.state = {
-      badges: [],
+      
     }
   }
 
   render() {
-    let badges = this.props.products    
-    
-    console.log(badges)
+    console.log(this.props.products)
+    const badges = this.props.products.map((e, i) => {
+        return (
+          <Badge 
+            key={i} 
+            product={e}
+            amount={this.props.amount}
+            categoryActive={this.props.categoryActive}
+            durationActive={this.props.durationActive} />
+        )
+      }
+    )
 
     return (
       <div className="TaxCalculator-content">
-        {/* {badges} */}
+        {badges}
       </div>
     )
-  }
-
-  componentDidMount() {
-    this.generateContent()
   }
   generateContent() {
     // console.log(this.props.schema)
@@ -66,13 +71,20 @@ export class TaxCalculatorContent extends Component {
   }
 }
 
-
+// function Badges(props) {
+//   console.log(props)
+  
+//   return (
+    
+//   )
+// }
 
 function Badge(props) {
+  console.log('Here', props.product)
   const amount = (!isNaN(props.amount) && props.amount >= 0)? props.amount: 0
-  const rate = props.rates.rate
-  const duration = props.pp.duration
-  const term = props.maturityCodeTerm
+  const rate = props.product.rates.rate
+  const duration = props.product.pp.duration
+  const term = props.product.maturityCodeTerm
   let calculatedAmount
 
   if (term === 'fixed'){
@@ -83,50 +95,50 @@ function Badge(props) {
 
   const tooltip = (
     <Tooltip id="logo-country-tooltip">
-      {props.pp.showTooltip}
+      {props.product.pp.showTooltip}
     </Tooltip>
   )
 
   return (
-    <ul className="calc-list-row" data-term={props.maturityCodeTerm}>
-      <li className="calc-item-rate hidden-xs" data-rate={props.rates.rate}>{props.rates.ratesClear}&nbsp;%
+    <ul className="calc-list-row" data-term={props.product.maturityCodeTerm}>
+      <li className="calc-item-rate hidden-xs" data-rate={props.product.rates.rate}>{props.product.rates.ratesClear}&nbsp;%
         <div className="calc-sub-note">
-          <span className="rate-explain-text">{props.showRatePreview}</span>
+          <span className="rate-explain-text">{props.product.showRatePreview}</span>
         </div>
       </li>
-      <li className="calc-item-maturitycode" data-duration={props.pp.duration}>
-        {props.pp.announcement}
-        {props.durationClear}
+      <li className="calc-item-maturitycode" data-duration={props.product.pp.duration}>
+        {props.product.pp.announcement}
+        {props.product.durationClear}
         <div className="calc-sub-note hidden-xs">
           <span className="maturitycode-explain-text">Laufzeit</span>
         </div>
       </li>
       <li className="calc-item-productbankname">
-        <span className="productbankname-logo-wrapper">{props.pp.productBankLogo}</span>
+        <span className="productbankname-logo-wrapper">{props.product.pp.productBankLogo}</span>
         <div className="calc-sub-note hidden-xs">
           <OverlayTrigger placement="bottom" overlay={tooltip}>
-            <span className="logo-country-text">{props.pp.productBankCountry}</span>
+            <span className="logo-country-text">{props.product.pp.productBankCountry}</span>
           </OverlayTrigger>
         </div>
       </li>
-      <li className="calc-item-rate visible-xs-block" data-rate={props.rates.rate}>
-        <span className="rate-text-wrapper">{props.rates.ratesClear}&nbsp;%</span>
+      <li className="calc-item-rate visible-xs-block" data-rate={props.product.rates.rate}>
+        <span className="rate-text-wrapper">{props.product.rates.ratesClear}&nbsp;%</span>
         <div className="calc-sub-note">
-          <span className="rate-explain-text">{props.showRatePreview}</span>
+          <span className="rate-explain-text">{props.product.showRatePreview}</span>
         </div>
       </li>
       <li className="calc-item-amount hidden-xs">
         <span className="calc-amount-price">{calculatedAmount}</span>
         <span className="calc-amount-currency">&euro;</span>
         <div className="calc-sub-note">
-          <span className="amount-note-text">Zinsertrag {props.showAmountNote} <sup>*</sup></span>
+          <span className="amount-note-text">Zinsertrag {props.product.showAmountNote} <sup>*</sup></span>
         </div>
       </li>
       <li className="calc-item-description hidden-sm hidden-xs">
         <div className="item-description-text">
-          {props.pp.descriptionHtml}
+          {props.product.pp.descriptionHtml}
           <div className="calc-sub-note">
-            &nbsp;&nbsp;&nbsp;<a href={props.pp.urlAnlageangebot} target="_blank" className="item-description-anchor" rel="noopener noreferrer">Angebotsdetails</a>
+            &nbsp;&nbsp;&nbsp;<a href={props.product.pp.urlAnlageangebot} target="_blank" className="item-description-anchor" rel="noopener noreferrer">Angebotsdetails</a>
           </div>
         </div>
       </li>
@@ -135,7 +147,7 @@ function Badge(props) {
           <a href="https://www.example.org?params=/flows/register" target="_blank" className="btn btn-primary" rel="noopener noreferrer">Jetzt anlegen</a>
         </span>
         <div className="calc-sub-note hidden-lg hidden-md">
-          <a href={props.pp.urlAnlageangebot} target="_blank" className="cta-more-text" rel="noopener noreferrer">Weitere Informationen</a>
+          <a href={props.product.pp.urlAnlageangebot} target="_blank" className="cta-more-text" rel="noopener noreferrer">Weitere Informationen</a>
         </div>
       </li>
     </ul>
