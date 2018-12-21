@@ -6,64 +6,65 @@ export class TaxCalculatorContent extends Component {
     super(props)
 
     this.state = {
-      filterList: [],
-      children: [],
+      badges: [],
     }
   }
 
   render() {
-    let children = []
-    this.props.products.forEach((e, i) => {
-      const pb = e.productBank,
-        p = e.product,
-        productBankBic = pb.bank.bic,
-        productBankName = pb.name,
-        maturityCode = p.maturityCode,
-        usp = e.upcomingStartDates;
-
-      if ((this.props.notToPromote).indexOf(productBankBic) === -1) {
-        const pp = this.buildProperties(productBankBic, productBankName, maturityCode),
-          maturityCodeTerm = ((maturityCode).toLowerCase().indexOf('fixed') >= 0) ? 'fixed' : 'flex',
-          rates = this.buildRates(p.interestRateOverTime, usp, p.depositType),
-          showRatePreview = (rates.previewRate) ? 'Ab ' + rates.previewClear + ': ' + rates.previewRate + ' %' : '',
-          durationClear = <DurationClear duration={pp.duration} term={maturityCodeTerm} />,
-          showAmountNote = (maturityCodeTerm === 'fixed') ? '' : ' p.a.',
-          abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
-
-        
-        children[abstractSortNumber] = <Child key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} 
-                                        showRatePreview={showRatePreview} durationClear={durationClear} 
-                                        showAmountNote={showAmountNote} amount={this.props.amount}
-                                        categoryActive={this.props.categoryActive}
-                                        durationActive={this.props.durationActive}
-                                         />
-
-        //Add up fixed-items to Maturity-Filter Array, if not allready in
-        if ((this.state.filterList).indexOf(pp.duration) === -1) {
-          this.state.filterList.push(pp.duration);
-        }
-      }
-    });
+    let badges = this.state.badges
+    badges.sort((a, b) => (a.sort_no - b.sort_no))
 
     return (
       <div className="TaxCalculator-content">
-        {children}
+        {badges}
       </div>
     )
   }
 
   componentDidMount() {
-    this.state.filterList.sort((a, b) => (a-b));
-    this.handleDurations()
+    this.generateContent()
   }
+  generateContent() {
+    console.log(this.props.schema)
+    
+    this.props.products.forEach((e, i) => {
+      console.log(e)
+      const pp = this.buildProperties(e.productBankBic, e.productBankName, e.maturityCode),
+          durationClear = <DurationClear duration={pp.duration} term={e.maturityCodeTerm} />,
+          abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
+      console.log(pp)
 
-  handleDurations() {
-    this.props.handleDurationsAddition(this.state.filterList)
+        // //categoryActive + durationActive
+        // if(this.props.categoryActive === 'both' && this.props.durationActive === 'all'){
+        //   // console.log('Here')
+        // }
+        // // console.log(props.maturityCodeTerm) // fixed|flex
+        // // console.log(props.pp.duration)  //1,2,3
+        // console.log(maturityCodeTerm, pp.duration, this.props.durationActive)
+        // const durationActive = ()=> (this.props.durationActive==='p.a.'? 12: this.props.durationActive).toString()
+
+        // if(durationActive!=='all'){
+
+        // }else{
+
+        // }
+
+        // if(pp.duration.toString()===durationActive.toString()){
+        //   console.log('Duration matched!')
+        // }
+        // if(maturityCodeTerm===this.props.categoryActive){
+        //   console.log('Category matched!')
+        // }
+        // badges[abstractSortNumber] = <Badge key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} 
+        //                                 showRatePreview={showRatePreview} durationClear={durationClear} 
+        //                                 showAmountNote={showAmountNote} amount={this.props.amount}
+        //                                 categoryActive={this.props.categoryActive}
+        //                                 durationActive={this.props.durationActive} />
+      
+    });
   }
-
   buildProperties(productBankBic, productBankName, maturityCode) {
     let settings = {
-      'duration': 12,
       'productBankCountry': 'tbd',
       'showTooltip': 'tbd',
       'urlAnlageangebot': 'https://www.example.org?params=/product/details/' + productBankBic + '/' + maturityCode,
@@ -73,16 +74,8 @@ export class TaxCalculatorContent extends Component {
       'special': ''
     };
 
-    //Duration
-    if (maturityCode.toLowerCase().indexOf('fixed') >= 0) {
-      var term = maturityCode.split('_').pop(),
-        patt = /[0-9]*/g,
-        result = patt.exec(term);
-      settings.duration = (term.toLowerCase().indexOf('m') >= 0) ? result[0] : result[0] * 12;
-    }
-
     //Other
-    var link = '', imageSrc = '';
+    let link = '', imageSrc = '';
     settings.showTooltip = 'Einlagen sind pro Kunde bis 100.000 EUR zu 100 % abgesichert.';
 
     if (productBankBic === 'HAABAT2K') {
@@ -135,7 +128,7 @@ export class TaxCalculatorContent extends Component {
     settings.productBankLogo = <ProductBankLogo link={link} productBankName={productBankName} imageSrc={imageSrc} />
 
     //SortNumber
-    this.props.schema.forEach(function (e) {
+    this.props.schema.forEach((e) => {
       if (maturityCode === e.maturity && productBankBic === e.bic) {
         settings.sortNumber = e.sort_no;
         settings.descriptionHtml = <RenderDescription desc1={e.desc1} desc2={e.desc2} desc3={e.desc3} bonusurl={e.bonusurl} />
@@ -145,52 +138,8 @@ export class TaxCalculatorContent extends Component {
         }
       }
     });
+
     return settings;
-  }
-
-  buildRates(r, usp, depositType) {
-    var rate = {}, d = new Date(),
-      beforeTrancheEnd = (d.setDate(d.getDate() + 3));
-
-    if (depositType === 'DIRECT_ACCESS') {
-      r.forEach(function (e) {
-        var realRate = e.rate,
-          validFrom = new Date(e.validFrom);
-
-        if (Date.parse(validFrom) < beforeTrancheEnd) {
-          rate.rate = realRate;
-          rate.ratesClear = (realRate * 100).toFixed(2).replace('.', ',');
-        } else {
-          if (rate.previewRate === undefined) {
-            rate.previewRate = (realRate * 100).toFixed(2).replace('.', ',');
-            rate.previewClear = validFrom.getDate() + '.' + (validFrom.getMonth() + 1) + '.';
-          }
-        }
-      });
-    } else {
-      r.forEach(function (e) {
-        var realRate = e.rate,
-          validFrom = new Date(e.validFrom);
-
-        if (Date.parse(validFrom) < beforeTrancheEnd) {
-          rate.rate = realRate;
-          rate.ratesClear = (realRate * 100).toFixed(2).replace('.', ',');
-        }
-      });
-
-      usp.forEach(function (e) {
-        var realRate = e.rate,
-          startDate = new Date(e.startDate);
-
-        if (rate.rate !== realRate) {
-          if (rate.previewRate === undefined) {
-            rate.previewRate = (realRate * 100).toFixed(2).replace('.', ',');
-            rate.previewClear = startDate.getDate() + '.' + (startDate.getMonth() + 1) + '.';
-          }
-        }
-      });
-    }
-    return rate;
   }
 }
 
@@ -246,7 +195,7 @@ function DurationClear(props){
   }
 }
 
-function Child(props) {
+function Badge(props) {
   const amount = (!isNaN(props.amount) && props.amount >= 0)? props.amount: 0
   const rate = props.rates.rate
   const duration = props.pp.duration

@@ -10,10 +10,10 @@ class TaxCalculator extends Component {
       loading: true,
       products: {},
       schema: {},
+      durations: [],
       amount: 1000,
       categoryActive: 'both',
       durationActive: 'all',
-      durations: [],
       tracker: {trackingEnable: false, clientId: this.createUniqueId()},
     }
     this.imports = {
@@ -26,7 +26,6 @@ class TaxCalculator extends Component {
     this.handleAmountChange = this.handleAmountChange.bind(this)
     this.handleSwitchClick = this.handleSwitchClick.bind(this)
     this.handleDurationChange = this.handleDurationChange.bind(this)
-    this.handleDurationsAddition = this.handleDurationsAddition.bind(this)
   }
 
   render() {
@@ -46,21 +45,19 @@ class TaxCalculator extends Component {
             <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
             <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
           </div>
-          <TaxCalculatorContent products={products} schema={schema} notToPromote={this.notToPromote} 
-            handleDurationsAddition={this.handleDurationsAddition} 
+          <TaxCalculatorContent 
+            products={products} 
+            schema={schema} 
             amount={this.state.amount}
             categoryActive={this.state.categoryActive}
-            durationActive={this.state.durationActive}
-             />
+            durationActive={this.state.durationActive} />
           <TaxCalculatorFooter />
         </section>
       );
     }
   }
 
-  handleDurationsAddition(list) {
-    this.setState({durations: list});
-  }
+  // Listener
   handleDurationChange(event) {
     this.setState({durationActive: event.target.value});
   }
@@ -79,39 +76,122 @@ class TaxCalculator extends Component {
     Promise.all([
       fetch(this.imports.products)
         .then(
-          (result) => {
-            return result.json();
+          (response) => {
+            return response.json();
           }
         ),
       fetch(this.imports.schema)
         .then(
-          (result) => {
-            return result.json();
+          (response) => {
+            return response.json();
           }
         )
     ]).then(
       (values) => {
         this.setState({
           loading: false,
-          products: values[0],
           schema: values[1],
-          // products: this.createContentFromImport(values),
+          products: this.createContentFromImport(values[0]),
         })
       }
     );
   }
 
-  createContentFromImport(val) {
-    
+  createContentFromImport(importProducts) {
+    const scope = this
+    return importProducts.map((e) => {
+      let item = {
+        pb: e.productBank,
+        p: e.product,
+        productBankBic: e.productBank.bank.bic,
+        productBankName: e.productBank.name,
+        maturityCode: e.product.maturityCode,
+        usp: e.upcomingStartDates,
+      }
+
+      if ((this.notToPromote).indexOf(item.productBankBic) === -1) {
+
+        item.maturityCodeTerm = ((item.maturityCode).toLowerCase().indexOf('fixed') >= 0) ? 'fixed' : 'flex'
+        item.rates = scope.buildRates(e.product.interestRateOverTime, item.usp, e.product.depositType)
+        item.showRatePreview = (item.rates.previewRate) ? 'Ab ' + item.rates.previewClear + ': ' + item.rates.previewRate + ' %' : ''
+        item.showAmountNote = (item.maturityCodeTerm === 'fixed') ? '' : ' p.a.'
+        item.pp = {
+          duration: scope.getDuration(item.maturityCode),
+        }
+        
+        // const pp = this.buildProperties(productBankBic, productBankName, maturityCode),
+          // durationClear = <DurationClear duration={pp.duration} term={maturityCodeTerm} />,
+          // abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
+        
+        //Add up fixed-items to Maturity-Filter Array, if not allready in
+        if ((this.state.durations).indexOf(item.pp.duration) === -1 && item.pp.duration!==undefined) {
+          this.state.durations.push(item.pp.duration)
+        }
+      }
+      this.state.durations.sort((a, b) => (a-b))
+      return item
+    });
+  }
+  getDuration(maturityCode) {
+    if (maturityCode.toLowerCase().indexOf('fixed') >= 0) {
+      let term = maturityCode.split('_').pop(),
+        patt = /[0-9]*/g,
+        result = patt.exec(term);
+      return (term.toLowerCase().indexOf('m') >= 0) ? result[0] : result[0] * 12;
+    }
+  }
+  buildRates(r, usp, depositType) {
+    let rate = {}, d = new Date(),
+      beforeTrancheEnd = (d.setDate(d.getDate() + 3));
+
+    if (depositType === 'DIRECT_ACCESS') {
+      r.forEach(function (e) {
+        let realRate = e.rate,
+          validFrom = new Date(e.validFrom);
+
+        if (Date.parse(validFrom) < beforeTrancheEnd) {
+          rate.rate = realRate;
+          rate.ratesClear = (realRate * 100).toFixed(2).replace('.', ',');
+        } else {
+          if (rate.previewRate === undefined) {
+            rate.previewRate = (realRate * 100).toFixed(2).replace('.', ',');
+            rate.previewClear = validFrom.getDate() + '.' + (validFrom.getMonth() + 1) + '.';
+          }
+        }
+      });
+    } else {
+      r.forEach(function (e) {
+        let realRate = e.rate,
+          validFrom = new Date(e.validFrom);
+
+        if (Date.parse(validFrom) < beforeTrancheEnd) {
+          rate.rate = realRate;
+          rate.ratesClear = (realRate * 100).toFixed(2).replace('.', ',');
+        }
+      });
+
+      usp.forEach(function (e) {
+        let realRate = e.rate,
+          startDate = new Date(e.startDate);
+
+        if (rate.rate !== realRate) {
+          if (rate.previewRate === undefined) {
+            rate.previewRate = (realRate * 100).toFixed(2).replace('.', ',');
+            rate.previewClear = startDate.getDate() + '.' + (startDate.getMonth() + 1) + '.';
+          }
+        }
+      });
+    }
+    return rate;
   }
 
+  // Tracker
   createUniqueId() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
   }
-
   trackAction(trackingData) {
     if (this.state.tracker.trackingEnable && trackingData !== {}) {
         var gtmData = {'taxInterestCalculator': Object.assign(trackingData, this.fillTrackState())};
@@ -119,7 +199,6 @@ class TaxCalculator extends Component {
         window.dataLayer.push(gtmData);
     }
   }
-
   fillTrackState() {
     return {
       'event': 'zinsrechner',
