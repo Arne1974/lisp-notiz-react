@@ -46,7 +46,12 @@ class TaxCalculator extends Component {
             <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
             <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
           </div>
-          <TaxCalculatorContent products={products} schema={schema} notToPromote={this.notToPromote} handleDurationsAddition={this.handleDurationsAddition} amount={this.state.amount} />
+          <TaxCalculatorContent products={products} schema={schema} notToPromote={this.notToPromote} 
+            handleDurationsAddition={this.handleDurationsAddition} 
+            amount={this.state.amount}
+            categoryActive={this.state.categoryActive}
+            durationActive={this.state.durationActive}
+             />
           <TaxCalculatorFooter />
         </section>
       );

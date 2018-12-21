@@ -30,7 +30,13 @@ export class TaxCalculatorContent extends Component {
           showAmountNote = (maturityCodeTerm === 'fixed') ? '' : ' p.a.',
           abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
 
-        children[abstractSortNumber] = <Child key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} showRatePreview={showRatePreview} durationClear={durationClear} showAmountNote={showAmountNote} amount={this.props.amount} />
+        
+        children[abstractSortNumber] = <Child key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} 
+                                        showRatePreview={showRatePreview} durationClear={durationClear} 
+                                        showAmountNote={showAmountNote} amount={this.props.amount}
+                                        categoryActive={this.props.categoryActive}
+                                        durationActive={this.props.durationActive}
+                                         />
 
         //Add up fixed-items to Maturity-Filter Array, if not allready in
         if ((this.state.filterList).indexOf(pp.duration) === -1) {
@@ -256,7 +262,7 @@ function Child(props) {
   }
 
   const tooltip = (
-    <Tooltip id="tooltip">
+    <Tooltip id="logo-country-tooltip">
       {props.pp.showTooltip}
     </Tooltip>
   )
