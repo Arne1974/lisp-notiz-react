@@ -61,15 +61,12 @@ class TaxCalculator extends Component {
   handleDurationsAddition(list) {
     this.setState({durations: list});
   }
-
   handleDurationChange(event) {
     this.setState({durationActive: event.target.value});
   }
-
   handleSwitchClick(event) {
     this.setState({categoryActive: event.target.value});
   }
-
   handleAmountChange(event) {
     let input = parseInt(event.target.value)
     if(Number.isNaN(input)) {
@@ -98,9 +95,14 @@ class TaxCalculator extends Component {
           loading: false,
           products: values[0],
           schema: values[1],
-        });
+          // products: this.createContentFromImport(values),
+        })
       }
     );
+  }
+
+  createContentFromImport(val) {
+    
   }
 
   createUniqueId() {

@@ -53,9 +53,7 @@ export class TaxCalculatorContent extends Component {
   }
 
   componentDidMount() {
-    this.state.filterList.sort(function (a, b) {
-      return a - b
-    });
+    this.state.filterList.sort((a, b) => (a-b));
     this.handleDurations()
   }
 
