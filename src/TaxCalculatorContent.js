@@ -11,15 +11,14 @@ export class TaxCalculatorContent extends Component {
   }
 
   render() {
-    console.log(this.props.products)
     const badges = this.props.products.map((e, i) => {
-        return (
-          <Badge 
-            key={i} 
-            product={e}
-            amount={this.props.amount}
-            categoryActive={this.props.categoryActive}
-            durationActive={this.props.durationActive} />
+      return (
+        <Badge 
+          key={i} 
+          product={e}
+          amount={this.props.amount}
+          categoryActive={this.props.categoryActive}
+          durationActive={this.props.durationActive} />
         )
       }
     )
@@ -31,15 +30,6 @@ export class TaxCalculatorContent extends Component {
     )
   }
   generateContent() {
-    // console.log(this.props.schema)
-    
-    // this.props.products.forEach((e, i) => {
-    //   console.log(e)
-    //   const pp = this.buildProperties(e.productBankBic, e.productBankName, e.maturityCode),
-    //       durationClear = <DurationClear duration={pp.duration} term={e.maturityCodeTerm} />,
-    //       abstractSortNumber = ((pp.sortNumber) ? pp.sortNumber : i);
-    //   console.log(pp)
-
         // //categoryActive + durationActive
         // if(this.props.categoryActive === 'both' && this.props.durationActive === 'all'){
         //   // console.log('Here')
@@ -61,30 +51,18 @@ export class TaxCalculatorContent extends Component {
         // if(maturityCodeTerm===this.props.categoryActive){
         //   console.log('Category matched!')
         // }
-        // badges[abstractSortNumber] = <Badge key={i} pp={pp} rates={rates} maturityCodeTerm={maturityCodeTerm} 
-        //                                 showRatePreview={showRatePreview} durationClear={durationClear} 
-        //                                 showAmountNote={showAmountNote} amount={this.props.amount}
-        //                                 categoryActive={this.props.categoryActive}
-        //                                 durationActive={this.props.durationActive} />
-      
-    // });
   }
 }
 
-// function Badges(props) {
-//   console.log(props)
-  
-//   return (
-    
-//   )
-// }
-
 function Badge(props) {
-  console.log('Here', props.product)
   const amount = (!isNaN(props.amount) && props.amount >= 0)? props.amount: 0
   const rate = props.product.rates.rate
   const duration = props.product.pp.duration
   const term = props.product.maturityCodeTerm
+  
+  const durationActive = props.durationActive==='p.a.' ? 12: props.durationActive
+  const categoryActive = props.categoryActive
+  
   let calculatedAmount
 
   if (term === 'fixed'){
@@ -99,8 +77,37 @@ function Badge(props) {
     </Tooltip>
   )
 
+  let hiddenClass
+  if(props.product.pp.duration.toString() === durationActive.toString()){
+    if(props.product.maturityCodeTerm === categoryActive.toString()){
+      hiddenClass = 'calc-list-row'
+    }else{
+      hiddenClass = 'calc-list-row hidden'
+    }
+  }else{
+    if(categoryActive==='both'){
+      hiddenClass = 'calc-list-row'
+    }else if(categoryActive==='fixed'){
+      if(durationActive.toString() === 'all'){
+        if(props.product.maturityCodeTerm === categoryActive.toString()){
+          hiddenClass = 'calc-list-row'
+        }else{
+          hiddenClass = 'calc-list-row hidden'
+        }
+      }else{
+        if(props.product.pp.duration.toString() === durationActive.toString()){
+          hiddenClass = 'calc-list-row'
+        }else{
+          hiddenClass = 'calc-list-row hidden'
+        }
+      }
+    }else{
+      hiddenClass = 'calc-list-row hidden'
+    }
+  }
+  
   return (
-    <ul className="calc-list-row" data-term={props.product.maturityCodeTerm}>
+    <ul className={hiddenClass} data-term={props.product.maturityCodeTerm}>
       <li className="calc-item-rate hidden-xs" data-rate={props.product.rates.rate}>{props.product.rates.ratesClear}&nbsp;%
         <div className="calc-sub-note">
           <span className="rate-explain-text">{props.product.showRatePreview}</span>

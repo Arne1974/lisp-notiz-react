@@ -29,37 +29,47 @@ class TaxCalculator extends Component {
   }
 
   render() {
-    if (this.state.loading) {
-      return (
-        <section className="TaxCalculator">
+    return (
+      <section className="TaxCalculator">
+        <div className="TaxCalculator-header">
+          <AmountInput value={this.state.amount} onInputChange={this.handleAmountChange} placeholder={this.amountPlaceholder} />
+          <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
+          <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
+        </div>
+        {this.state.loading ? (
           <div className="loader">Loading... </div>
-        </section>
-      )
-    } else {
-      return (
-        <section className="TaxCalculator">
-          <div className="TaxCalculator-header">
-            <AmountInput value={this.state.amount} onInputChange={this.handleAmountChange} placeholder={this.amountPlaceholder} />
-            <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
-            <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
-          </div>
+        ): (
           <TaxCalculatorContent 
-            products={this.state.products} 
-            amount={this.state.amount}
-            categoryActive={this.state.categoryActive}
-            durationActive={this.state.durationActive} />
-          <TaxCalculatorFooter />
-        </section>
-      );
-    }
+          products={this.state.products} 
+          amount={this.state.amount}
+          categoryActive={this.state.categoryActive}
+          durationActive={this.state.durationActive} />
+        )}
+        <TaxCalculatorFooter />
+      </section>
+    );
   }
 
   // Listener
   handleDurationChange(event) {
-    this.setState({durationActive: event.target.value});
+    const switchType = event.target.value
+    if(switchType==='p.a.'){
+      this.setState({ categoryActive: 'flex' })
+    }else if(switchType==='all'){
+      this.setState({ categoryActive: 'both' })
+    }else{
+      this.setState({ categoryActive: 'fixed' })
+    }
+    this.setState({ durationActive: switchType })
   }
   handleSwitchClick(event) {
-    this.setState({categoryActive: event.target.value});
+    const switchType = event.target.value
+    if(switchType==='flex'){
+      this.setState({ durationActive: 'p.a.' })
+    }else if(switchType==='both' || switchType==='fixed'){
+      this.setState({ durationActive: 'all' })
+    }
+    this.setState({ categoryActive: switchType })
   }
   handleAmountChange(event) {
     let input = parseInt(event.target.value)
@@ -87,7 +97,7 @@ class TaxCalculator extends Component {
       (values) => {
         this.schema = values[1]
         this.setState({
-          loading: false,
+          
           products: this.createContentFromImport(values[0]),
         })
       }
@@ -122,9 +132,14 @@ class TaxCalculator extends Component {
           this.state.durations.push(item.pp.duration)
         }
         
-        items.push(item)
+        // items.push(item)
+        items = items.concat(item)
       }
     });
+
+    this.setState({
+      loading: false,
+    })
 
     // Sort Filter für Laufzeit und sämtliche Products
     this.state.durations.sort((a, b) => (a-b))
