@@ -9,7 +9,8 @@ function TaxCalculatorContent(props) {
         product={e}
         amount={props.amount}
         categoryActive={props.categoryActive}
-        durationActive={props.durationActive} />
+        durationActive={props.durationActive}
+        handleLinkClick={props.handleLinkClick} />
       )
     }
   )
@@ -112,16 +113,16 @@ function Badge(props) {
         <div className="item-description-text">
           {props.product.pp.descriptionHtml}
           <div className="calc-sub-note">
-            &nbsp;&nbsp;&nbsp;<a href={props.product.pp.urlAnlageangebot} target="_blank" className="item-description-anchor" rel="noopener noreferrer">Angebotsdetails</a>
+            &nbsp;&nbsp;&nbsp;<a href={props.product.pp.urlAnlageangebot} onClick={props.handleLinkClick} target="_blank" className="item-description-anchor" rel="noopener noreferrer">Angebotsdetails</a>
           </div>
         </div>
       </li>
       <li className="calc-item-cta">
         <span className="cta-button-wrapper">
-          <a href="https://www.example.org?params=/flows/register" target="_blank" className="btn btn-primary" rel="noopener noreferrer">Jetzt anlegen</a>
+          <a href="https://www.example.org?params=/flows/register" onClick={props.handleLinkClick} target="_blank" className="btn btn-primary" rel="noopener noreferrer">Jetzt anlegen</a>
         </span>
         <div className="calc-sub-note hidden-lg hidden-md">
-          <a href={props.product.pp.urlAnlageangebot} target="_blank" className="cta-more-text" rel="noopener noreferrer">Weitere Informationen</a>
+          <a href={props.product.pp.urlAnlageangebot} onClick={props.handleLinkClick} target="_blank" className="cta-more-text" rel="noopener noreferrer">Weitere Informationen</a>
         </div>
       </li>
     </ul>

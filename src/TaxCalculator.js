@@ -13,7 +13,6 @@ class TaxCalculator extends Component {
       amount: 1000,
       categoryActive: 'both',
       durationActive: 'all',
-      tracker: {trackingEnable: false, clientId: this.createUniqueId()},
     }
     this.imports = {
       products: 'http://127.0.0.1:3030/json/products.json',
@@ -23,9 +22,12 @@ class TaxCalculator extends Component {
     this.notToPromote = ['HSHNDEHH', 'CPLUDES1XXX']
     this.amountPlaceholder = '1.000 €'
     this.categories = ['both', 'flex', 'fixed']
+    this.tracker = { trackingEnable: false, clientId: this.createUniqueId() }
+    
     this.handleAmountChange = this.handleAmountChange.bind(this)
     this.handleSwitchClick = this.handleSwitchClick.bind(this)
     this.handleDurationChange = this.handleDurationChange.bind(this)
+    this.handleLinkClick = this.handleLinkClick.bind(this)
   }
 
   render() {
@@ -41,13 +43,21 @@ class TaxCalculator extends Component {
             products={this.state.products} 
             amount={this.state.amount}
             categoryActive={this.state.categoryActive}
-            durationActive={this.state.durationActive} />
+            durationActive={this.state.durationActive}
+            handleLinkClick={this.handleLinkClick} />
         <TaxCalculatorFooter />
       </section>
     );
   }
 
   // Listener
+  handleLinkClick(event) {
+    event.stopPropagation();
+    this.trackAction({
+      trigger: 'LinkClick',
+      url: event.target.href,
+    })
+  }
   handleDurationChange(event) {
     const switchType = event.target.value
     if(switchType==='p.a.'){
@@ -58,6 +68,9 @@ class TaxCalculator extends Component {
       this.setState({ categoryActive: 'fixed' })
     }
     this.setState({ durationActive: switchType })
+    this.trackAction({
+      trigger: 'DurationChange'
+    })
   }
   handleSwitchClick(event) {
     const switchType = event.target.value
@@ -67,6 +80,9 @@ class TaxCalculator extends Component {
       this.setState({ durationActive: 'all' })
     }
     this.setState({ categoryActive: switchType })
+    this.trackAction({
+      trigger: 'SwitchClick'
+    })
   }
   handleAmountChange(event) {
     let input = parseInt(event.target.value)
@@ -74,6 +90,9 @@ class TaxCalculator extends Component {
       input = ''
     }
     this.setState({amount: input});
+    this.trackAction({
+      trigger: 'AmountChange'
+    })
   }
   
   componentDidMount() {
@@ -215,7 +234,7 @@ class TaxCalculator extends Component {
     this.schema.forEach((e) => {
       if (maturityCode === e.maturity && productBankBic === e.bic) {
         settings.sortNumber = e.sort_no;
-        settings.descriptionHtml = <RenderDescription desc1={e.desc1} desc2={e.desc2} desc3={e.desc3} bonusurl={e.bonusurl} />
+        settings.descriptionHtml = <RenderDescription desc1={e.desc1} desc2={e.desc2} desc3={e.desc3} bonusurl={e.bonusurl} handleLinkClick={this.handleLinkClick} />
 
         if (e.special !== undefined && e.special !== '') {
           settings.announcement = <SpecialAnnouncement special={e.special} />
@@ -277,9 +296,9 @@ class TaxCalculator extends Component {
     }
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
   }
-  trackAction(trackingData) {
-    if (this.state.tracker.trackingEnable && trackingData !== {}) {
-        var gtmData = {'taxInterestCalculator': Object.assign(trackingData, this.fillTrackState())};
+  trackAction(trackingData={}) {
+    if (this.tracker.trackingEnable && trackingData) {
+        let gtmData = {'taxInterestCalculator': Object.assign(trackingData, this.fillTrackState())};
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push(gtmData);
     }
@@ -287,7 +306,7 @@ class TaxCalculator extends Component {
   fillTrackState() {
     return {
       'event': 'zinsrechner',
-      'clientId': this.state.tracker.clientId,
+      'clientId': this.tracker.clientId,
       'amount': this.state.amount,
       'button': this.state.categoryActive,
       'duration': this.state.durationActive
@@ -367,7 +386,7 @@ function RenderDescription(props) {
   if (props.desc1 !== '') {
     let desc2 = props.desc2
     if (props.bonusurl !== undefined && props.bonusurl !== '') {
-      desc2 = <KontoAktivierungsBonus link={props.bonusurl} description={props.desc2} />;
+      desc2 = <KontoAktivierungsBonus link={props.bonusurl} description={props.desc2} handleLinkClick={props.handleLinkClick} />;
     }
     return (
       <ul className="description-text-list">
@@ -389,7 +408,7 @@ function ProductBankLogo(props) {
 
 function KontoAktivierungsBonus(props) {
   return (
-    <a href={props.link} target="_blank" rel="noopener noreferrer">{props.description}</a>
+    <a href={props.link} onClick={props.handleLinkClick} target="_blank" rel="noopener noreferrer">{props.description}</a>
   );
 }
 
