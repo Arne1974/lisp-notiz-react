@@ -382,7 +382,7 @@ function RenderDescription(props) {
 function ProductBankLogo(props) {
   return (
     <a href={props.link} target="_blank" title={props.productBankName} rel="noopener noreferrer">
-      <img src={props.imageSrc} alt={props.productBankName} />
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA1BAMAAAB4jDJTAAAAG1BMVEXMzMyWlpacnJzFxcWxsbGjo6Oqqqq+vr63t7dy4/Y7AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAyElEQVQYGe3BwWrCQBRA0RvH1iwnPNJ2GUeLWY5i96FfEBBcD0WDyySlcV1B4me34A/MspR3Dkoppf6CBW+5T13F3SR7os89UbZCM9TdreQuuY0sh4IoThBjD1zhnQY2MCuwxBGCsSs2MBkF+nmAbU0cgcdaSCB9reB73DPLWuIIfHghAZwHQwdDQRzhYceKNTD3/EpMayxxhAYOXGG6D3CiT2tjiSOU57YbS1h/PsPlvDQvX4E4QpZJ6io4coSpC1xyj1JK/S8/sGgdQfkHonAAAAAASUVORK5CYII=" alt={props.productBankName} />
     </a>
   );
 }
