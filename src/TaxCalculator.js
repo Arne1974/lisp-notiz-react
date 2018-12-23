@@ -36,15 +36,12 @@ class TaxCalculator extends Component {
           <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
           <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
         </div>
-        {this.state.loading ? (
-          <div className="loader">Loading... </div>
-        ): (
-          <TaxCalculatorContent 
-          products={this.state.products} 
-          amount={this.state.amount}
-          categoryActive={this.state.categoryActive}
-          durationActive={this.state.durationActive} />
-        )}
+        { this.state.loading ? <div className="loader">Loading... </div> : '' }
+        <TaxCalculatorContent 
+            products={this.state.products} 
+            amount={this.state.amount}
+            categoryActive={this.state.categoryActive}
+            durationActive={this.state.durationActive} />
         <TaxCalculatorFooter />
       </section>
     );
@@ -96,12 +93,13 @@ class TaxCalculator extends Component {
     ]).then(
       (values) => {
         this.schema = values[1]
+        
         this.setState({
-          
+          loading: false,
           products: this.createContentFromImport(values[0]),
         })
       }
-    );
+    ).then(()=> delete this.schema);
   }
 
   createContentFromImport(importProducts) {
@@ -132,15 +130,10 @@ class TaxCalculator extends Component {
           this.state.durations.push(item.pp.duration)
         }
         
-        // items.push(item)
-        items = items.concat(item)
+        items.push(item)
       }
     });
-
-    this.setState({
-      loading: false,
-    })
-
+    
     // Sort Filter für Laufzeit und sämtliche Products
     this.state.durations.sort((a, b) => (a-b))
     return items.sort((a, b) => (a.abstractSortNumber - b.abstractSortNumber))

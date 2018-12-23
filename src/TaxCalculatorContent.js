@@ -1,57 +1,24 @@
-import React, { Component } from 'react'
+import React from 'react'
 import {OverlayTrigger, Tooltip} from 'react-bootstrap'
 
-export class TaxCalculatorContent extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      
-    }
-  }
-
-  render() {
-    const badges = this.props.products.map((e, i) => {
-      return (
-        <Badge 
-          key={i} 
-          product={e}
-          amount={this.props.amount}
-          categoryActive={this.props.categoryActive}
-          durationActive={this.props.durationActive} />
-        )
-      }
-    )
-
+function TaxCalculatorContent(props) {
+  const badges = props.products.map((e, i) => {
     return (
-      <div className="TaxCalculator-content">
-        {badges}
-      </div>
-    )
-  }
-  generateContent() {
-        // //categoryActive + durationActive
-        // if(this.props.categoryActive === 'both' && this.props.durationActive === 'all'){
-        //   // console.log('Here')
-        // }
-        // // console.log(props.maturityCodeTerm) // fixed|flex
-        // // console.log(props.pp.duration)  //1,2,3
-        // console.log(maturityCodeTerm, pp.duration, this.props.durationActive)
-        // const durationActive = ()=> (this.props.durationActive==='p.a.'? 12: this.props.durationActive).toString()
+      <Badge 
+        key={i} 
+        product={e}
+        amount={props.amount}
+        categoryActive={props.categoryActive}
+        durationActive={props.durationActive} />
+      )
+    }
+  )
 
-        // if(durationActive!=='all'){
-
-        // }else{
-
-        // }
-
-        // if(pp.duration.toString()===durationActive.toString()){
-        //   console.log('Duration matched!')
-        // }
-        // if(maturityCodeTerm===this.props.categoryActive){
-        //   console.log('Category matched!')
-        // }
-  }
+  return (
+    <div className="TaxCalculator-content">
+      {badges}
+    </div>
+  )
 }
 
 function Badge(props) {
