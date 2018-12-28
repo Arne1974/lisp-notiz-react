@@ -13,6 +13,7 @@ class TaxCalculator extends Component {
       amount: 1000,
       categoryActive: 'both',
       durationActive: 'all',
+      error: false,
     }
     this.imports = {
       products: 'http://127.0.0.1:3030/json/products.json',
@@ -39,6 +40,7 @@ class TaxCalculator extends Component {
           <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
         </div>
         { this.state.loading ? <div className="loader">Loading... </div> : '' }
+        { this.state.error ? <div className="error">Es ist ein Fehler beim Laden des Dokuments aufgetreten! :(</div> : '' }
         <TaxCalculatorContent 
             products={this.state.products} 
             amount={this.state.amount}
@@ -99,26 +101,35 @@ class TaxCalculator extends Component {
     Promise.all([
       fetch(this.imports.products)
         .then(
-          (response) => {
+          response => {
             return response.json();
           }
         ),
       fetch(this.imports.schema)
         .then(
-          (response) => {
+          response => {
             return response.json();
           }
         )
     ]).then(
-      (values) => {
+      values => {
         this.schema = values[1]
         
         this.setState({
-          loading: false,
           products: this.createContentFromImport(values[0]),
         })
+        delete this.schema
       }
-    ).then(()=> delete this.schema);
+    ).catch(
+      error => {
+        this.setState({
+          error: true
+        })
+        console.warn(error)
+      }
+    ).finally(
+      () => this.setState({ loading: false })
+    );
   }
 
   createContentFromImport(importProducts) {
