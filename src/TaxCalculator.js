@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './TaxCalculator.scss';
+import TaxCalculatorHeader from './TaxCalculatorHeader';
 import TaxCalculatorContent from './TaxCalculatorContent';
+import TaxCalculatorFooter from './TaxCalculatorFooter';
 
 class TaxCalculator extends Component {
   constructor(props) {
@@ -34,19 +36,18 @@ class TaxCalculator extends Component {
   render() {
     return (
       <section className="TaxCalculator">
-        <div className="TaxCalculator-header">
-          <AmountInput value={this.state.amount} onInputChange={this.handleAmountChange} placeholder={this.amountPlaceholder} />
-          <Buttons onButtonClick={this.handleSwitchClick} categoryActive={this.state.categoryActive} />
-          <Duration durations={this.state.durations} value={this.state.durationActive} onSelectChange={this.handleDurationChange} />
-        </div>
+        <TaxCalculatorHeader
+          amountPropsValue={this.state.amount} amountPropsOnInputChange={this.handleAmountChange} amountPropsPlaceholder={this.amountPlaceholder}
+          buttonPropsOnButtonClick={this.handleSwitchClick} buttonPropsCategoryActive={this.state.categoryActive}
+          durationPropsDurations={this.state.durations} durationPropsValue={this.state.durationActive} durationPropsOnSelectChange={this.handleDurationChange} />
         { this.state.loading ? <div className="loader">Loading... </div> : '' }
-        { this.state.error ? <div className="error">Es ist ein Fehler beim Laden des Dokuments aufgetreten! :(</div> : '' }
         <TaxCalculatorContent 
-            products={this.state.products} 
-            amount={this.state.amount}
-            categoryActive={this.state.categoryActive}
-            durationActive={this.state.durationActive}
-            handleLinkClick={this.handleLinkClick} />
+          error={this.state.error}
+          products={this.state.products} 
+          amount={this.state.amount}
+          categoryActive={this.state.categoryActive}
+          durationActive={this.state.durationActive}
+          handleLinkClick={this.handleLinkClick} />
         <TaxCalculatorFooter />
       </section>
     );
@@ -152,7 +153,6 @@ class TaxCalculator extends Component {
         item.showRatePreview = (item.rates.previewRate) ? 'Ab ' + item.rates.previewClear + ': ' + item.rates.previewRate + ' %' : ''
         item.showAmountNote = (item.maturityCodeTerm === 'fixed') ? '' : ' p.a.'
         item.pp = scope.buildProperties(item.productBankBic, item.productBankName, item.maturityCode)
-        item.durationClear = <DurationClear duration={item.pp.duration} term={item.maturityCodeTerm} />
         item.abstractSortNumber = ((item.pp.sortNumber) ? item.pp.sortNumber : i)
         
         //Add up fixed-items to Maturity-Filter Array, if not allready in
@@ -176,7 +176,7 @@ class TaxCalculator extends Component {
       'productBankLogo': 'tbd',
       'sortNumber': 0,
       'descriptionHtml': '',
-      'special': '',
+      'specialAnnouncement': '',
       'duration': 12,
     };
 
@@ -239,16 +239,27 @@ class TaxCalculator extends Component {
       link = 'https://www.example.org/';
       settings.productBankCountry = 'Utopia';
     }
-    settings.productBankLogo = <ProductBankLogo link={link} productBankName={productBankName} imageSrc={imageSrc} />
+    settings.productBankLogo = {
+      link: link,
+      productBankName: productBankName,
+      imageSrc: imageSrc,
+    }
 
     //SortNumber
     this.schema.forEach((e) => {
       if (maturityCode === e.maturity && productBankBic === e.bic) {
         settings.sortNumber = e.sort_no;
-        settings.descriptionHtml = <RenderDescription desc1={e.desc1} desc2={e.desc2} desc3={e.desc3} bonusurl={e.bonusurl} handleLinkClick={this.handleLinkClick} />
+        settings.descriptionHtml = {
+          desc1: e.desc1,
+          desc2: e.desc2,
+          desc3: e.desc3,
+          bonusurl: e.bonusurl,
+        }
 
         if (e.special !== undefined && e.special !== '') {
-          settings.announcement = <SpecialAnnouncement special={e.special} />
+          settings.specialAnnouncement = { 
+            value: e.special,
+          }
         }
       }
     });
@@ -322,120 +333,6 @@ class TaxCalculator extends Component {
       'button': this.state.categoryActive,
       'duration': this.state.durationActive
     };
-  }
-}
-
-function AmountInput(props) {
-  return (
-    <div className="hidden-xs">
-      <label>Betrag
-        <input type="text" name="dash-amount" className="dashboard-item-amount"
-          id="dash-amount" maxLength="9" 
-          placeholder={props.placeholder}
-          value={props.value}
-          onChange={props.onInputChange}
-          />
-      </label>
-    </div>
-  );
-}
-
-function Buttons(props) {
-  const ActiveAll = (props.categoryActive==='both')? 'active': ''
-  const ActiveFlex = (props.categoryActive==='flex')? 'active': ''
-  const ActiveFixed = (props.categoryActive==='fixed')? 'active': ''
-  return (
-    <div className="hidden-xs">
-      <button onClick={props.onButtonClick} className={ActiveAll} id="all-btn" value="both">alle Angebote</button>
-      <button onClick={props.onButtonClick} className={ActiveFlex} id="flex-btn" value="flex">Tagesgeld</button>
-      <button onClick={props.onButtonClick} className={ActiveFixed} id="fixed-btn" value="fixed">Festgeld</button>
-    </div>
-  );
-}
-
-function Duration(props) {
-  let options = props.durations.map((v, i)=> {
-    return (<DurationOption duration={v} key={i} />)
-  });
-  return (
-    <div>
-      <label>Laufzeit
-        <select id="dash-maturity" name="dash-maturity" value={props.value} onChange={props.onSelectChange}>
-          <option value="all" data-duration="all">Alle anzeigen</option>
-          <option value="p.a." data-duration="p.a.">Tages-/Flexgeld</option>
-          {options}
-        </select>
-      </label>
-    </div>
-  );
-}
-
-function DurationOption(props) {
-  let month = props.duration>1? ' Monate': ' Monat';
-  return (
-    <option value={props.duration} data-duration={props.duration}>{props.duration}{month}</option>
-  )
-}
-
-function TaxCalculatorFooter() {
-  return (
-    <div className="TaxCalculator-footer">
-      <div className="TaxCalculator-footer-text">
-        <sup>*</sup> Berechnete Zinserträge verstehen sich als Näherungswerte und beziehen sich auf die Produktlaufzeit. Maßgeblich für die Verzinsung sind das Angebot und die Berechnungsmethode der Bank. Für Tages- und Flexgeld24 wird ein konstanter Zins unterstellt.
-      </div>
-    </div>
-  )
-}
-
-function SpecialAnnouncement(props) {
-  return (
-    <div className="item-maturitycode-anouncement">{props.special}</div>
-  );
-}
-
-function RenderDescription(props) {
-  if (props.desc1 !== '') {
-    let desc2 = props.desc2
-    if (props.bonusurl !== undefined && props.bonusurl !== '') {
-      desc2 = <KontoAktivierungsBonus link={props.bonusurl} description={props.desc2} handleLinkClick={props.handleLinkClick} />;
-    }
-    return (
-      <ul className="description-text-list">
-        <li>{props.desc1}</li>
-        <li>{desc2}</li>
-        <li>{props.desc3}</li>
-      </ul>
-    );
-  }
-}
-
-function ProductBankLogo(props) {
-  return (
-    <a href={props.link} target="_blank" title={props.productBankName} rel="noopener noreferrer">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA1BAMAAAB4jDJTAAAAG1BMVEXMzMyWlpacnJzFxcWxsbGjo6Oqqqq+vr63t7dy4/Y7AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAyElEQVQYGe3BwWrCQBRA0RvH1iwnPNJ2GUeLWY5i96FfEBBcD0WDyySlcV1B4me34A/MspR3Dkoppf6CBW+5T13F3SR7os89UbZCM9TdreQuuY0sh4IoThBjD1zhnQY2MCuwxBGCsSs2MBkF+nmAbU0cgcdaSCB9reB73DPLWuIIfHghAZwHQwdDQRzhYceKNTD3/EpMayxxhAYOXGG6D3CiT2tjiSOU57YbS1h/PsPlvDQvX4E4QpZJ6io4coSpC1xyj1JK/S8/sGgdQfkHonAAAAAASUVORK5CYII=" alt={props.productBankName} />
-    </a>
-  );
-}
-
-function KontoAktivierungsBonus(props) {
-  return (
-    <a href={props.link} onClick={props.handleLinkClick} target="_blank" rel="noopener noreferrer">{props.description}</a>
-  );
-}
-
-function DurationClear(props){
-  if(props.duration === 12 && props.term === 'flex'){
-    return (
-      <span className="maturitycode-duration-wrapper">
-        Tagesgeld/<br />Flexgeld
-      </span>
-    )
-  } else {
-    return (
-      <span className="maturitycode-duration-wrapper">
-        {props.duration} Monate
-      </span>
-    )
   }
 }
 
