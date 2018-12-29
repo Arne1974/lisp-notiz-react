@@ -92,9 +92,9 @@ function Badge(props) {
       <li className="calc-item-productbankname">
         <span className="productbankname-logo-wrapper">
         <ProductBankLogo 
-          link={props.product.pp.productBankLogo.link} 
+          link={props.product.pp.link} 
           productBankName={props.product.productBankName} 
-          imageSrc={props.product.pp.productBankLogo.imageSrc} />
+          imageSrc={props.product.pp.imageSrc} />
         </span>
         <div className="calc-sub-note hidden-xs">
           <OverlayTrigger placement="bottom" overlay={tooltip}>

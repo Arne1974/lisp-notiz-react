@@ -3,6 +3,7 @@ import './TaxCalculator.scss';
 import TaxCalculatorHeader from './TaxCalculatorHeader';
 import TaxCalculatorContent from './TaxCalculatorContent';
 import TaxCalculatorFooter from './TaxCalculatorFooter';
+import bankModule from './TaxCalculatorBankModule';
 
 class TaxCalculator extends Component {
   constructor(props) {
@@ -152,7 +153,7 @@ class TaxCalculator extends Component {
         item.rates = scope.buildRates(e.product.interestRateOverTime, item.usp, e.product.depositType)
         item.showRatePreview = (item.rates.previewRate) ? 'Ab ' + item.rates.previewClear + ': ' + item.rates.previewRate + ' %' : ''
         item.showAmountNote = (item.maturityCodeTerm === 'fixed') ? '' : ' p.a.'
-        item.pp = scope.buildProperties(item.productBankBic, item.productBankName, item.maturityCode)
+        item.pp = scope.buildProperties(item.productBankBic, item.maturityCode)
         item.abstractSortNumber = ((item.pp.sortNumber) ? item.pp.sortNumber : i)
         
         //Add up fixed-items to Maturity-Filter Array, if not allready in
@@ -168,16 +169,17 @@ class TaxCalculator extends Component {
     this.state.durations.sort((a, b) => (a-b))
     return items.sort((a, b) => (a.abstractSortNumber - b.abstractSortNumber))
   }
-  buildProperties(productBankBic, productBankName, maturityCode) {
+  buildProperties(productBankBic, maturityCode) {
     let settings = {
-      'productBankCountry': 'tbd',
-      'showTooltip': 'tbd',
-      'urlAnlageangebot': 'https://www.example.org?params=/product/details/' + productBankBic + '/' + maturityCode,
-      'productBankLogo': 'tbd',
-      'sortNumber': 0,
-      'descriptionHtml': '',
-      'specialAnnouncement': '',
-      'duration': 12,
+      productBankCountry: 'Utopia',
+      showTooltip: 'Einlagen sind pro Kunde bis 100.000 EUR zu 100 % abgesichert.',
+      urlAnlageangebot: 'https://www.example.org?params=/product/details/' + productBankBic + '/' + maturityCode,
+      sortNumber: 0,
+      descriptionHtml: {},
+      specialAnnouncement: {},
+      duration: 12,
+      imageSrc: 'https://via.placeholder.com/120x53',
+      link: 'https://www.example.org/',
     };
 
     //Duration
@@ -189,63 +191,9 @@ class TaxCalculator extends Component {
     }
 
     //Other
-    let link = '', imageSrc = '';
-    settings.showTooltip = 'Einlagen sind pro Kunde bis 100.000 EUR zu 100 % abgesichert.';
+    settings = Object.assign(settings, this.getBankFromBic(productBankBic))
 
-    if (productBankBic === 'HAABAT2K') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=csm_Anadi_Logo_192d674e89.png';
-      link = '/#anadi';
-      settings.productBankCountry = 'Österreich';
-    } else if (productBankBic === 'BUCUROBU') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=logo_alpha_bank_160x34.png';
-      link = '/#alpha';
-      settings.productBankCountry = 'Rumänien';
-    } else if (productBankBic === 'ATMBGB22') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=banklogo/atombank_logo.png';
-      link = '/#atom';
-      settings.productBankCountry = 'Großbritannien';
-      settings.showTooltip = 'Einlagen sind pro Kunde bis 85.000 GBP zu 100 % abgesichert.';
-    } else if (productBankBic === 'CBRLGB2L') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=Close_Brothers_Savings_Logo.png';
-      link = '/#closebrothers';
-      settings.productBankCountry = 'Großbritannien';
-      settings.showTooltip = 'Einlagen sind pro Kunde bis 85.000 GBP zu 100 % abgesichert.';
-    } else if (productBankBic === 'PARXLV22') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=Citadele_Logo_klein.jpg';
-      link = '/#cbl';
-      settings.productBankCountry = 'Lettland';
-    } else if (productBankBic === 'CPLUDES1XXX') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=CP_Logo_transp_v2.png';
-      link = '/#creditplus';
-      settings.productBankCountry = 'Deutschland';
-    } else if (productBankBic === 'FIMBMTM3XXX') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=csm_fimbank_730c9feb99.png';
-      link = '/#fim';
-      settings.productBankCountry = 'Malta';
-    } else if (productBankBic === 'BACCFR22') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=oney_logo_klein.jpg';
-      link = '/#oney';
-      settings.productBankCountry = 'Frankreich';
-    } else if (productBankBic === 'RTMBLV2X') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=RietumuLogo.gif';
-      link = '/#rietumu';
-      settings.productBankCountry = 'Lettland';
-    } else if (productBankBic === 'BDIGPTPL') {
-      imageSrc = 'https://via.placeholder.com/120x53?logo=big_logo.png';
-      link = '/#bigbank';
-      settings.productBankCountry = 'Portugal';
-    } else {
-      imageSrc = 'https://via.placeholder.com/120x53';
-      link = 'https://www.example.org/';
-      settings.productBankCountry = 'Utopia';
-    }
-    settings.productBankLogo = {
-      link: link,
-      productBankName: productBankName,
-      imageSrc: imageSrc,
-    }
-
-    //SortNumber
+    //SortNumber & specialAnnouncement from Imports
     this.schema.forEach((e) => {
       if (maturityCode === e.maturity && productBankBic === e.bic) {
         settings.sortNumber = e.sort_no;
@@ -309,6 +257,10 @@ class TaxCalculator extends Component {
       });
     }
     return rate;
+  }
+  getBankFromBic(value=''){
+    const newArray = bankModule.filter(e => e.productBankBic === value)
+    return newArray[0].data
   }
 
   // Tracker
