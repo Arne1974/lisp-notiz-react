@@ -116,7 +116,7 @@ class TaxCalculator extends Component {
     ]).then(
       values => {
         this.schema = values[1]
-        
+        this.setInitParameter()
         this.setState({
           products: this.createContentFromImport(values[0]),
         })
@@ -285,6 +285,31 @@ class TaxCalculator extends Component {
       'button': this.state.categoryActive,
       'duration': this.state.durationActive
     };
+  }
+
+  setInitParameter() {
+    let searchTerm = document.URL.split('#').pop()
+    
+    if (searchTerm !== undefined) {
+      const mayHaveDuration = searchTerm.split('-').pop()
+      searchTerm = mayHaveDuration.length!==undefined ? searchTerm.split('-').shift(): searchTerm
+      if (searchTerm.toLowerCase() === 'festgeld') {
+
+        this.setState({
+          categoryActive: 'fixed',
+        })
+        if(!isNaN(mayHaveDuration)){
+          this.setState({
+            durationActive: mayHaveDuration
+          })
+        }
+      } else if (searchTerm.toLowerCase() === 'tagesgeld' || searchTerm.toLowerCase() === 'flexgeld' || searchTerm.toLowerCase() === 'flexgeld24') {
+        this.setState({
+          categoryActive: 'flex',
+          durationActive: 'p.a.',
+        })
+      }
+    }
   }
 }
 
