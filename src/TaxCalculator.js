@@ -191,27 +191,8 @@ class TaxCalculator extends Component {
     }
 
     //Other
-    settings = Object.assign(settings, this.getBankFromBic(productBankBic))
-
-    //SortNumber & specialAnnouncement from Imports
-    this.schema.forEach((e) => {
-      if (maturityCode === e.maturity && productBankBic === e.bic) {
-        settings.sortNumber = e.sort_no;
-        settings.descriptionHtml = {
-          desc1: e.desc1,
-          desc2: e.desc2,
-          desc3: e.desc3,
-          bonusurl: e.bonusurl,
-        }
-
-        if (e.special !== undefined && e.special !== '') {
-          settings.specialAnnouncement = { 
-            value: e.special,
-          }
-        }
-      }
-    });
-
+    settings = Object.assign(settings, this.getBankFromBic(productBankBic), this.getDataFromSchema(maturityCode, productBankBic))
+    
     return settings;
   }
   buildRates(r, usp, depositType) {
@@ -262,6 +243,32 @@ class TaxCalculator extends Component {
     const newArray = bankModule.filter(e => e.productBankBic === value)
     return newArray[0].data
   }
+  getDataFromSchema(maturityCode, productBankBic){
+    const items = this.schema.filter((e) => {
+      if (maturityCode === e.maturity && productBankBic === e.bic) {
+        return true
+      }
+      return false
+    });
+    
+    let item = {
+      sortNumber: items[0].sort_no,
+      descriptionHtml: {
+        desc1: items[0].desc1,
+        desc2: items[0].desc2,
+        desc3: items[0].desc3,
+        bonusurl: items[0].bonusurl,
+      }
+    }
+
+    if (items[0].special !== undefined && items[0].special !== '') {
+      item.specialAnnouncement = {
+        value: items[0].special,
+      }
+    }
+    
+    return item
+  }
 
   // Tracker
   createUniqueId() {
@@ -287,6 +294,7 @@ class TaxCalculator extends Component {
     };
   }
 
+  // Init
   setInitParameter() {
     let searchTerm = document.URL.split('#').pop()
     
@@ -294,7 +302,6 @@ class TaxCalculator extends Component {
       const mayHaveDuration = searchTerm.split('-').pop()
       searchTerm = mayHaveDuration.length!==undefined ? searchTerm.split('-').shift(): searchTerm
       if (searchTerm.toLowerCase() === 'festgeld') {
-
         this.setState({
           categoryActive: 'fixed',
         })
