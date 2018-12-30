@@ -120,7 +120,7 @@ class TaxCalculator extends Component {
         this.setState({
           products: this.createContentFromImport(values[0]),
         })
-        delete this.schema
+        
       }
     ).catch(
       error => {
@@ -130,7 +130,10 @@ class TaxCalculator extends Component {
         console.warn(error)
       }
     ).finally(
-      () => this.setState({ loading: false })
+      () => {
+        this.setState({ loading: false })
+        this.schema = []
+      }
     );
   }
 
@@ -240,34 +243,25 @@ class TaxCalculator extends Component {
     return rate;
   }
   getBankFromBic(value=''){
-    const newArray = bankModule.filter(e => e.productBankBic === value)
-    return newArray[0].data
+    const newArray = bankModule.find(e => e.productBankBic === value)
+    return newArray.data
   }
   getDataFromSchema(maturityCode, productBankBic){
-    const items = this.schema.filter((e) => {
-      if (maturityCode === e.maturity && productBankBic === e.bic) {
-        return true
-      }
-      return false
-    });
-    
-    let item = {
-      sortNumber: items[0].sort_no,
+    const item = this.schema.find(e => maturityCode === e.maturity && productBankBic === e.bic);
+    let setting = {
+      sortNumber: item.sort_no,
       descriptionHtml: {
-        desc1: items[0].desc1,
-        desc2: items[0].desc2,
-        desc3: items[0].desc3,
-        bonusurl: items[0].bonusurl,
+        desc1: item.desc1,
+        desc2: item.desc2,
+        desc3: item.desc3,
+        bonusurl: item.bonusurl,
       }
     }
 
-    if (items[0].special !== undefined && items[0].special !== '') {
-      item.specialAnnouncement = {
-        value: items[0].special,
-      }
+    if (item.special !== undefined && item.special !== '') {
+      setting.specialAnnouncement = { value: item.special }
     }
-    
-    return item
+    return setting
   }
 
   // Tracker

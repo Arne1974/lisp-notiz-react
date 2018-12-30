@@ -34,24 +34,25 @@ function Badge(props) {
   
   let calculatedAmount
 
+  // calculate
   if (term === 'fixed'){
     calculatedAmount = ((amount * rate) / 12 * duration).toFixed(2).replace('.', ',');
   } else if(term === 'flex'){
     calculatedAmount = ((amount * rate)).toFixed(2).replace('.', ',')
   }
 
+  // tooltip
   const tooltip = (
     <Tooltip id="logo-country-tooltip">
       {props.product.pp.showTooltip}
     </Tooltip>
   )
 
-  let hiddenClass
+  // hidden-logic
+  let hiddenClass = 'calc-list-row hidden'
   if(props.product.pp.duration.toString() === durationActive.toString()){
     if(props.product.maturityCodeTerm === categoryActive.toString()){
       hiddenClass = 'calc-list-row'
-    }else{
-      hiddenClass = 'calc-list-row hidden'
     }
   }else{
     if(categoryActive==='both'){
@@ -60,18 +61,12 @@ function Badge(props) {
       if(durationActive.toString() === 'all'){
         if(props.product.maturityCodeTerm === categoryActive.toString()){
           hiddenClass = 'calc-list-row'
-        }else{
-          hiddenClass = 'calc-list-row hidden'
         }
       }else{
         if(props.product.pp.duration.toString() === durationActive.toString()){
           hiddenClass = 'calc-list-row'
-        }else{
-          hiddenClass = 'calc-list-row hidden'
         }
       }
-    }else{
-      hiddenClass = 'calc-list-row hidden'
     }
   }
   
