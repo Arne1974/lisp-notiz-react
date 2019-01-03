@@ -1,8 +1,3 @@
-@keyframes spin {
-  100% {
-    transform: rotate(1turn);
-  }
-}
 #logo-country-tooltip{
   &.tooltip>.tooltip-inner {
     background-color: #ffffff;
@@ -96,23 +91,26 @@
     }
   }
 
+  .TaxCalculator-content {
+    min-height: 108px;
+    .calc-list-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 59px;
+    }
+    .calc-list-error{
+      width: 100%;
+      margin-top: 20px;
+    }
+  }
+
   .TaxCalculator-footer {
     display: flex;
-
     .TaxCalculator-footer-text {
       margin-top: 6px;
       font-size: 12px;
     }
-  }
-
-  .TaxCalculator-link {
-    color: #61dafb;
-  }
-
-  .loader {
-    display: inline-flex;
-    justify-self: center;
-    align-self: center;
   }
 
   button,
@@ -126,52 +124,7 @@
     padding-inline-start: 0;
   }
 
-  /* old css content */
-  .calc-main-container {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 12px;
-    margin: 8px;
-    max-width: 920px;
-  }
-
-  .calc-main-container label {
-    margin-bottom: 0;
-  }
-
-  .calc-list-container ul {
-    padding: 0;
-  }
-
-  .calc-dashboard-container {
-    margin-bottom: 8px;
-  }
-
-  .calc-dashboard-row {
-    display: table;
-    width: 100%;
-    -webkit-padding-start: 0;
-    -moz-padding-start: 0;
-  }
-
-  .calc-dashboard-item {
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 14px;
-  }
-
-  .calc-dashboard-item .dashboard-item-amount {
-    width: 128px;
-  }
-
-  .calc-dashboard-item:first-child {
-    text-align: left;
-  }
-
-  .calc-dashboard-item:last-child {
-    text-align: right;
-  }
-
+  /* old css content modified */
   .calc-item-rate {
     font-size: 38px;
     font-weight: bold;
@@ -334,49 +287,9 @@
     transform: rotate(180deg);
   }
 
-  .calc-disclaimer-text {
-    margin-top: 6px;
-  }
-
-  .calc-list-loading {
-    text-align: center;
-  }
-
-  .calc-list-loading .glyphicon {
-    animation: spin 1s 0s infinite linear;
-  }
-
   .description-text-list {
     list-style: none;
   }
-
-  /*Button*/
-  .btn-switch {
-    color: #e48c1e;
-    background-color: #ffffff;
-    border-color: #ec971f;
-    border-radius: 2px;
-    margin-top: 0;
-  }
-
-  .btn-switch.active,
-  .btn-switch:hover,
-  .btn-switch:active,
-  .btn-switch:focus {
-    color: #ffffff;
-    background-color: #e48c1e;
-    border-color: #e48c1e;
-    border-radius: 2px;
-  }
-
-  .logo-country-text:hover {
-    cursor: pointer;
-  }
-
-  /* Tooltip */
-  /* .logo-country-text + .tooltip{
-  
-} */
 
   @media (max-width: 767px) {
     .calc-list-row {

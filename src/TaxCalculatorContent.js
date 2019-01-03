@@ -17,8 +17,8 @@ function TaxCalculatorContent(props) {
 
   return (
     <div className="TaxCalculator-content">
-      {badges}
-      { props.error ? <pre className="error">Es ist ein Fehler beim Laden des Dokuments aufgetreten! :(</pre> : '' }
+      { !props.error && props.products.length<1 ? <div className="calc-list-loading">Loading... </div> : badges }
+      { props.error ? <pre className="calc-list-error">Es ist ein Fehler beim Laden des Dokuments aufgetreten! :(</pre> : '' }
     </div>
   )
 }

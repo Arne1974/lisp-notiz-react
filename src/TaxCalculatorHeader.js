@@ -1,15 +1,13 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-export class TaxCalculatorHeader extends Component {
-  render() {
-    return (
-      <div className="TaxCalculator-header">
-        <Amount value={this.props.amountPropsValue} onInputChange={this.props.amountPropsOnInputChange} placeholder={this.props.amountPropsPlaceholder} />
-        <Buttons onButtonClick={this.props.buttonPropsOnButtonClick} categoryActive={this.props.buttonPropsCategoryActive} />
-        <Duration durations={this.props.durationPropsDurations} value={this.props.durationPropsValue} onSelectChange={this.props.durationPropsOnSelectChange} />
-      </div>
-    )
-  }
+function TaxCalculatorHeader(props) {
+  return (
+    <div className="TaxCalculator-header">
+      <Amount value={props.amountPropsValue} onInputChange={props.amountPropsOnInputChange} placeholder={props.amountPropsPlaceholder} />
+      <Buttons onButtonClick={props.buttonPropsOnButtonClick} categoryActive={props.buttonPropsCategoryActive} />
+      <Duration durations={props.durationPropsDurations} value={props.durationPropsValue} onSelectChange={props.durationPropsOnSelectChange} />
+    </div>
+  )
 }
 
 function Amount(props) {

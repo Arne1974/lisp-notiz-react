@@ -3,14 +3,13 @@ import './TaxCalculator.scss';
 import TaxCalculatorHeader from './TaxCalculatorHeader';
 import TaxCalculatorContent from './TaxCalculatorContent';
 import TaxCalculatorFooter from './TaxCalculatorFooter';
-import bankModule from './TaxCalculatorBankModule';
+import TaxCalculatorBankModule from './TaxCalculatorBankModule';
 
 class TaxCalculator extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      loading: true,
       products: [],
       durations: [],
       amount: 1000,
@@ -41,7 +40,6 @@ class TaxCalculator extends Component {
           amountPropsValue={this.state.amount} amountPropsOnInputChange={this.handleAmountChange} amountPropsPlaceholder={this.amountPlaceholder}
           buttonPropsOnButtonClick={this.handleSwitchClick} buttonPropsCategoryActive={this.state.categoryActive}
           durationPropsDurations={this.state.durations} durationPropsValue={this.state.durationActive} durationPropsOnSelectChange={this.handleDurationChange} />
-        { this.state.loading ? <div className="loader">Loading... </div> : '' }
         <TaxCalculatorContent 
           error={this.state.error}
           products={this.state.products} 
@@ -90,7 +88,7 @@ class TaxCalculator extends Component {
   }
   handleAmountChange(event) {
     let input = parseInt(event.target.value)
-    if(Number.isNaN(input)) {
+    if(isNaN(input)) {
       input = ''
     }
     this.setState({amount: input});
@@ -120,7 +118,6 @@ class TaxCalculator extends Component {
         this.setState({
           products: this.createContentFromImport(values[0]),
         })
-        
       }
     ).catch(
       error => {
@@ -131,7 +128,6 @@ class TaxCalculator extends Component {
       }
     ).finally(
       () => {
-        this.setState({ loading: false })
         this.schema = []
       }
     );
@@ -243,7 +239,7 @@ class TaxCalculator extends Component {
     return rate;
   }
   getBankFromBic(value=''){
-    const newArray = bankModule.find(e => e.productBankBic === value)
+    const newArray = TaxCalculatorBankModule.find(e => e.productBankBic === value)
     return newArray.data
   }
   getDataFromSchema(maturityCode, productBankBic){
