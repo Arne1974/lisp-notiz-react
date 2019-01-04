@@ -24,7 +24,7 @@ function TaxCalculatorContent(props) {
 }
 
 function Badge(props) {
-  const amount = (!isNaN(props.amount) && props.amount >= 0)? props.amount: 0
+  const amount = (!Number.isNaN(props.amount) && props.amount >= 0)? props.amount: 0
   const rate = props.product.rates.rate
   const duration = props.product.pp.duration
   const term = props.product.maturityCodeTerm
