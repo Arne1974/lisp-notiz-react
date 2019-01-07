@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "jest-dom": "^3.0.0",
     "node-sass": "^4.11.0",
     "react": "^16.6.3",
     "react-bootstrap": "latest",
     "react-dom": "^16.6.3",
-    "react-scripts": "2.1.1"
+    "react-scripts": "2.1.1",
+    "react-testing-library": "^5.4.3"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TaxCalculatorHeader from '../TaxCalculatorHeader';
+import TaxCalculatorHeader from '../../TaxCalculatorHeader';
 
 it('renders "TaxCalculatorHeader" with mocked values without crashing', () => {
   const div = document.createElement('div');

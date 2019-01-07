@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TaxCalculatorContent from '../TaxCalculatorContent';
+import TaxCalculatorContent from '../../TaxCalculatorContent';
 
 it('renders "TaxCalculatorContent" with Error and zero products without crashing', () => {
   const div = document.createElement('div');

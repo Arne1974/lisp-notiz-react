@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import TaxCalculator from '../TaxCalculator';
-import TaxCalculatorBankModule from '../TaxCalculatorBankModule';
+import TaxCalculator from '../../TaxCalculator';
+import TaxCalculatorBankModule from '../../TaxCalculatorBankModule';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
