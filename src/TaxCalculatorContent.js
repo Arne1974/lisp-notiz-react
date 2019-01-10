@@ -23,6 +23,16 @@ function TaxCalculatorContent(props) {
   )
 }
 
+// pure functions
+function calculate(term, params){
+  if (term === 'fixed'){
+    return ((params.amount * params.rate) / 12 * params.duration).toFixed(2).replace('.', ',');
+  } else if(term === 'flex'){
+    return ((params.amount * params.rate)).toFixed(2).replace('.', ',')
+  }
+}
+
+// components
 function Badge(props) {
   const amount = (!Number.isNaN(props.amount) && props.amount >= 0)? props.amount: 0
   const rate = props.product.rates.rate
@@ -31,15 +41,9 @@ function Badge(props) {
   
   const durationActive = props.durationActive==='p.a.' ? 12: props.durationActive
   const categoryActive = props.categoryActive
-  
-  let calculatedAmount
 
   // calculate
-  if (term === 'fixed'){
-    calculatedAmount = ((amount * rate) / 12 * duration).toFixed(2).replace('.', ',');
-  } else if(term === 'flex'){
-    calculatedAmount = ((amount * rate)).toFixed(2).replace('.', ',')
-  }
+  const calculatedAmount = calculate(term, {amount, rate, duration})
 
   // tooltip
   const tooltip = (

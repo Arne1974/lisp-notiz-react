@@ -52,6 +52,42 @@ class TaxCalculator extends Component {
     );
   }
 
+  componentDidMount() {
+    Promise.all([
+      fetch(this.imports.products)
+        .then(
+          response => {
+            return response.json();
+          }
+        ),
+      fetch(this.imports.schema)
+        .then(
+          response => {
+            return response.json();
+          }
+        )
+    ]).then(
+      values => {
+        this.schema = values[1]
+        this.setInitParameter()
+        this.setState({
+          products: this.createContentFromImport(values[0]),
+        })
+      }
+    ).catch(
+      error => {
+        this.setState({
+          error: true
+        })
+        console.warn(error)
+      }
+    ).finally(
+      () => {
+        this.schema = []
+      }
+    );
+  }
+
   // Listener
   handleLinkClick(event) {
     event.stopPropagation();
@@ -97,42 +133,7 @@ class TaxCalculator extends Component {
     })
   }
   
-  componentDidMount() {
-    Promise.all([
-      fetch(this.imports.products)
-        .then(
-          response => {
-            return response.json();
-          }
-        ),
-      fetch(this.imports.schema)
-        .then(
-          response => {
-            return response.json();
-          }
-        )
-    ]).then(
-      values => {
-        this.schema = values[1]
-        this.setInitParameter()
-        this.setState({
-          products: this.createContentFromImport(values[0]),
-        })
-      }
-    ).catch(
-      error => {
-        this.setState({
-          error: true
-        })
-        console.warn(error)
-      }
-    ).finally(
-      () => {
-        this.schema = []
-      }
-    );
-  }
-
+  // Runtime-Methods
   createContentFromImport(importProducts) {
     const scope = this
     let items = []
