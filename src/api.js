@@ -1,4 +1,4 @@
-const bankModule = [
+export const BANK_MODULE = [
   {
     productBankBic: 'HAABAT2K',
     data: {
@@ -73,5 +73,3 @@ const bankModule = [
     }
   },
 ]
-
-export default bankModule;

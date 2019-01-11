@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import TaxCalculator from '../../TaxCalculator';
-import TaxCalculatorBankModule from '../../TaxCalculatorBankModule';
+import { BANK_MODULE } from '../../api';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
@@ -9,6 +9,6 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div);
 });
 
-it('TaxCalculatorBankModule.length greater 0', () => {
-  expect(TaxCalculatorBankModule.length).toBeGreaterThan(0)
+it('BANK_MODULE.length greater 0', () => {
+  expect(BANK_MODULE.length).toBeGreaterThan(0)
 });

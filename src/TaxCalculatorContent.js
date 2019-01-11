@@ -140,13 +140,13 @@ function Badge(props) {
 }
 
 function SpecialAnnouncement(props) {
-  return (props.value!==undefined && props.value!=='')? <div className="item-maturitycode-anouncement">{props.value}</div>: ''
+  return (typeof props.value!=='undefined' && props.value!=='')? <div className="item-maturitycode-anouncement">{props.value}</div>: ''
 }
 
 function RenderDescription(props) {
   if (props.desc1 !== '') {
     let desc2 = props.desc2
-    if (props.bonusurl !== undefined && props.bonusurl !== '') {
+    if (typeof props.bonusurl !== 'undefined' && props.bonusurl !== '') {
       desc2 = <KontoAktivierungsBonus link={props.bonusurl} description={props.desc2} handleLinkClick={props.handleLinkClick} />;
     }
     return (

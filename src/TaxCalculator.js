@@ -3,7 +3,7 @@ import './TaxCalculator.scss';
 import TaxCalculatorHeader from './TaxCalculatorHeader';
 import TaxCalculatorContent from './TaxCalculatorContent';
 import TaxCalculatorFooter from './TaxCalculatorFooter';
-import TaxCalculatorBankModule from './TaxCalculatorBankModule';
+import { BANK_MODULE } from './api';
 
 class TaxCalculator extends Component {
   constructor(props) {
@@ -157,7 +157,7 @@ class TaxCalculator extends Component {
         item.abstractSortNumber = ((item.pp.sortNumber) ? item.pp.sortNumber : i)
         
         //Add up fixed-items to Maturity-Filter Array, if not allready in
-        if ((this.state.durations).indexOf(item.pp.duration) === -1 && item.pp.duration!==undefined) {
+        if ((this.state.durations).indexOf(item.pp.duration) === -1 && typeof item.pp.duration!=='undefined') {
           this.state.durations.push(item.pp.duration)
         }
         
@@ -208,7 +208,7 @@ class TaxCalculator extends Component {
           rate.rate = realRate;
           rate.ratesClear = (realRate * 100).toFixed(2).replace('.', ',');
         } else {
-          if (rate.previewRate === undefined) {
+          if (typeof rate.previewRate === 'undefined') {
             rate.previewRate = (realRate * 100).toFixed(2).replace('.', ',');
             rate.previewClear = validFrom.getDate() + '.' + (validFrom.getMonth() + 1) + '.';
           }
@@ -230,7 +230,7 @@ class TaxCalculator extends Component {
           startDate = new Date(e.startDate);
 
         if (rate.rate !== realRate) {
-          if (rate.previewRate === undefined) {
+          if (typeof rate.previewRate === 'undefined') {
             rate.previewRate = (realRate * 100).toFixed(2).replace('.', ',');
             rate.previewClear = startDate.getDate() + '.' + (startDate.getMonth() + 1) + '.';
           }
@@ -240,7 +240,7 @@ class TaxCalculator extends Component {
     return rate;
   }
   getBankFromBic(value=''){
-    const newArray = TaxCalculatorBankModule.find(e => e.productBankBic === value)
+    const newArray = BANK_MODULE.find(e => e.productBankBic === value)
     return newArray.data
   }
   getDataFromSchema(maturityCode, productBankBic){
@@ -255,7 +255,7 @@ class TaxCalculator extends Component {
       }
     }
 
-    if (item.special !== undefined && item.special !== '') {
+    if (typeof item.special !== 'undefined' && item.special !== '') {
       setting.specialAnnouncement = { value: item.special }
     }
     return setting
@@ -289,9 +289,9 @@ class TaxCalculator extends Component {
   setInitParameter() {
     let searchTerm = document.URL.split('#').pop()
     
-    if (searchTerm !== undefined) {
+    if (typeof searchTerm !== 'undefined') {
       const mayHaveDuration = searchTerm.split('-').pop()
-      searchTerm = mayHaveDuration.length!==undefined ? searchTerm.split('-').shift(): searchTerm
+      searchTerm = typeof mayHaveDuration.length!=='undefined' ? searchTerm.split('-').shift(): searchTerm
       if (searchTerm.toLowerCase() === 'festgeld') {
         this.setState({
           categoryActive: 'fixed',
