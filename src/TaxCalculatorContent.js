@@ -1,5 +1,5 @@
 import React from 'react'
-import {OverlayTrigger, Tooltip} from 'react-bootstrap'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 function TaxCalculatorContent(props) {
   const badges = props.products.map((e, i) => {
@@ -8,8 +8,6 @@ function TaxCalculatorContent(props) {
         key={i} 
         product={e}
         amount={props.amount}
-        categoryActive={props.categoryActive}
-        durationActive={props.durationActive}
         handleLinkClick={props.handleLinkClick} />
       )
     }
@@ -26,8 +24,6 @@ function TaxCalculatorContent(props) {
 // components
 function Badge(props) {
   const amount = (!Number.isNaN(props.amount) && props.amount >= 0)? props.amount: 0
-  const durationActive = props.durationActive==='p.a.' ? 12: props.durationActive
-  const categoryActive = props.categoryActive
   
   // tooltip
   const tooltip = (
@@ -35,31 +31,9 @@ function Badge(props) {
       {props.product.pp.showTooltip}
     </Tooltip>
   )
-
-  // hidden-logic
-  let hiddenClass = 'calc-list-row hidden'
-  if(props.product.pp.duration.toString() === durationActive.toString()){
-    if(props.product.maturityCodeTerm === categoryActive.toString()){
-      hiddenClass = 'calc-list-row'
-    }
-  }else{
-    if(categoryActive==='both'){
-      hiddenClass = 'calc-list-row'
-    }else if(categoryActive==='fixed'){
-      if(durationActive.toString() === 'all'){
-        if(props.product.maturityCodeTerm === categoryActive.toString()){
-          hiddenClass = 'calc-list-row'
-        }
-      }else{
-        if(props.product.pp.duration.toString() === durationActive.toString()){
-          hiddenClass = 'calc-list-row'
-        }
-      }
-    }
-  }
   
   return (
-    <ul className={hiddenClass}>
+    <ul className="calc-list-row">
       <li className="calc-item-rate hidden-xs">{props.product.rates.ratesClear}&nbsp;%
         <div className="calc-sub-note">
           <span className="rate-explain-text">{props.product.showRatePreview}</span>
@@ -92,7 +66,7 @@ function Badge(props) {
         </div>
       </li>
       <li className="calc-item-amount hidden-xs">
-        <Price term={props.product.maturityCodeTerm} amount={amount} rate={props.product.rates.rate} duration={props.product.pp.duration} />
+        <Price amount={amount} term={props.product.maturityCodeTerm} rate={props.product.rates.rate} duration={props.product.pp.duration} />
         <span className="calc-amount-currency">&euro;</span>
         <div className="calc-sub-note">
           <span className="amount-note-text">Zinsertrag {props.product.showAmountNote} <sup>*</sup></span>

@@ -10,18 +10,22 @@ class TaxCalculator extends Component {
     super(props)
 
     this.state = {
-      products: [],
       durations: [],
+      error: false,
       amount: 1000,
+      products: [],
+
       categoryActive: 'both',
       durationActive: 'all',
-      error: false,
     }
+    
+    this.schema = []
+    this.allProducts = []
     this.imports = {
       products: 'http://127.0.0.1:3030/json/products.json',
       schema: 'http://127.0.0.1:3030/json/anlageangebote_liste.json',
     }
-    this.schema = []
+    
     this.notToPromote = ['HSHNDEHH', 'CPLUDES1XXX']
     this.amountPlaceholder = '1.000 €'
     this.categories = ['both', 'flex', 'fixed']
@@ -44,8 +48,6 @@ class TaxCalculator extends Component {
           error={this.state.error}
           products={this.state.products} 
           amount={this.state.amount}
-          categoryActive={this.state.categoryActive}
-          durationActive={this.state.durationActive}
           handleLinkClick={this.handleLinkClick} />
         <TaxCalculatorFooter />
       </section>
@@ -70,9 +72,8 @@ class TaxCalculator extends Component {
       values => {
         this.schema = values[1]
         this.setInitParameter()
-        this.setState({
-          products: this.createContentFromImport(values[0]),
-        })
+        this.allProducts = this.createContentFromImport(values[0])
+        console.log('First.')
       }
     ).catch(
       error => {
@@ -84,56 +85,129 @@ class TaxCalculator extends Component {
     ).finally(
       () => {
         this.schema = []
+        const prods = this.getProductsWithAppliedFilter(this.state.durationActive, this.state.categoryActive)
+        this.setState({ products: prods })
+        console.log('Finally.')
       }
     );
   }
 
   // Listener
   handleLinkClick(event) {
-    event.stopPropagation();
-    this.trackAction({
-      trigger: 'LinkClick',
-      url: event.target.href,
-    })
-  }
-  handleDurationChange(event) {
-    const switchType = event.target.value
-    if(switchType==='p.a.'){
-      this.setState({ categoryActive: 'flex' })
-    }else if(switchType==='all'){
-      this.setState({ categoryActive: 'both' })
-    }else{
-      this.setState({ categoryActive: 'fixed' })
-    }
-    this.setState({ durationActive: switchType })
-    this.trackAction({
-      trigger: 'DurationChange'
-    })
-  }
-  handleSwitchClick(event) {
-    const switchType = event.target.value
-    if(switchType==='flex'){
-      this.setState({ durationActive: 'p.a.' })
-    }else if(switchType==='both' || switchType==='fixed'){
-      this.setState({ durationActive: 'all' })
-    }
-    this.setState({ categoryActive: switchType })
-    this.trackAction({
-      trigger: 'SwitchClick'
-    })
+    event.stopPropagation()
+    this.trackAction({ trigger: 'LinkClick', url: event.target.href })
   }
   handleAmountChange(event) {
     let input = parseInt(event.target.value)
     if(isNaN(input)) {
       input = ''
     }
-    this.setState({amount: input});
-    this.trackAction({
-      trigger: 'AmountChange'
+    this.setState({ amount: input })
+
+    this.trackAction({ trigger: 'AmountChange' })
+  }
+  handleDurationChange(event) {
+    const switchType = event.target.value
+    let active 
+    if(switchType==='p.a.'){
+      active = 'flex'
+    }else if(switchType==='all'){
+      active = 'both'
+    }else{
+      active = 'fixed'
+    }
+    const prods = this.getProductsWithAppliedFilter(switchType, active)
+
+    this.setState({
+      categoryActive: active,
+      durationActive: switchType,
+      products: prods,
     })
+
+    this.trackAction({ trigger: 'DurationChange' })
+  }
+  handleSwitchClick(event) {
+    const switchType = event.target.value
+    let active
+    if(switchType==='flex'){
+      active = 'p.a.'
+    }else if(switchType==='both' || switchType==='fixed'){
+      active = 'all'
+    }
+    const prods = this.getProductsWithAppliedFilter(active, switchType)
+
+    this.setState({
+      durationActive: active,
+      categoryActive: switchType,
+      products: prods
+    })
+
+    this.trackAction({ trigger: 'SwitchClick' })
   }
   
-  // Runtime-Methods
+  // Runtime
+  getProductsWithAppliedFilter(durationActive, categoryActive) {
+    console.log('getProductsWithAppliedFilter: ', this.allProducts)
+    if(durationActive === 'p.a.'){
+      durationActive = 12
+    }
+    
+    // const categoryActive = this.state.categoryActive
+    console.log(durationActive, categoryActive)
+
+    const prods = this.allProducts.filter((e) => {
+      if(e.pp.duration.toString() === durationActive.toString()){
+        if(e.maturityCodeTerm === categoryActive.toString()){
+          return true
+        }
+      }else{
+        if(categoryActive==='both'){
+          return true
+        }else if(categoryActive==='fixed'){
+          if(durationActive.toString() === 'all'){
+            if(e.maturityCodeTerm === categoryActive.toString()){
+              return true
+            }
+          }else{
+            if(e.pp.duration.toString() === durationActive.toString()){
+              return true
+            }
+          }
+        }
+      }
+
+      return false
+    })
+
+    console.log('Output:', prods)
+    return prods
+  }
+
+  // Initialize
+  setInitParameter() {
+    // e.g. use: #festgeld, #festgeld-12, #tagesgeld
+    let searchTerm = document.URL.split('#').pop()
+    
+    if (typeof searchTerm !== 'undefined') {
+      const mayHaveDuration = searchTerm.split('-').pop()
+      searchTerm = typeof mayHaveDuration.length!=='undefined' ? searchTerm.split('-').shift(): searchTerm
+      if (searchTerm.toLowerCase() === 'festgeld') {
+        this.setState({
+          categoryActive: 'fixed',
+        })
+        if(!isNaN(mayHaveDuration)){
+          this.setState({
+            durationActive: mayHaveDuration
+          })
+        }
+      } else if (searchTerm.toLowerCase() === 'tagesgeld' || searchTerm.toLowerCase() === 'flexgeld' || searchTerm.toLowerCase() === 'flexgeld24') {
+        this.setState({
+          categoryActive: 'flex',
+          durationActive: 'p.a.',
+        })
+      }
+    }
+  }
   createContentFromImport(importedProducts) {
     const scope = this
     let items = []
@@ -283,31 +357,6 @@ class TaxCalculator extends Component {
       'button': this.state.categoryActive,
       'duration': this.state.durationActive
     };
-  }
-
-  // Init
-  setInitParameter() {
-    let searchTerm = document.URL.split('#').pop()
-    
-    if (typeof searchTerm !== 'undefined') {
-      const mayHaveDuration = searchTerm.split('-').pop()
-      searchTerm = typeof mayHaveDuration.length!=='undefined' ? searchTerm.split('-').shift(): searchTerm
-      if (searchTerm.toLowerCase() === 'festgeld') {
-        this.setState({
-          categoryActive: 'fixed',
-        })
-        if(!isNaN(mayHaveDuration)){
-          this.setState({
-            durationActive: mayHaveDuration
-          })
-        }
-      } else if (searchTerm.toLowerCase() === 'tagesgeld' || searchTerm.toLowerCase() === 'flexgeld' || searchTerm.toLowerCase() === 'flexgeld24') {
-        this.setState({
-          categoryActive: 'flex',
-          durationActive: 'p.a.',
-        })
-      }
-    }
   }
 }
 
