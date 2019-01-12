@@ -73,7 +73,6 @@ class TaxCalculator extends Component {
         this.schema = values[1]
         this.setInitParameter()
         this.allProducts = this.createContentFromImport(values[0])
-        console.log('First.')
       }
     ).catch(
       error => {
@@ -87,7 +86,6 @@ class TaxCalculator extends Component {
         this.schema = []
         const prods = this.getProductsWithAppliedFilter(this.state.durationActive, this.state.categoryActive)
         this.setState({ products: prods })
-        console.log('Finally.')
       }
     );
   }
@@ -147,15 +145,11 @@ class TaxCalculator extends Component {
   
   // Runtime
   getProductsWithAppliedFilter(durationActive, categoryActive) {
-    console.log('getProductsWithAppliedFilter: ', this.allProducts)
     if(durationActive === 'p.a.'){
       durationActive = 12
     }
     
-    // const categoryActive = this.state.categoryActive
-    console.log(durationActive, categoryActive)
-
-    const prods = this.allProducts.filter((e) => {
+    return this.allProducts.filter((e) => {
       if(e.pp.duration.toString() === durationActive.toString()){
         if(e.maturityCodeTerm === categoryActive.toString()){
           return true
@@ -175,12 +169,8 @@ class TaxCalculator extends Component {
           }
         }
       }
-
       return false
     })
-
-    console.log('Output:', prods)
-    return prods
   }
 
   // Initialize
