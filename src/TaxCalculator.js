@@ -14,7 +14,6 @@ class TaxCalculator extends Component {
       error: false,
       amount: 1000,
       products: [],
-
       categoryActive: 'both',
       durationActive: 'all',
     }
@@ -84,8 +83,7 @@ class TaxCalculator extends Component {
     ).finally(
       () => {
         this.schema = []
-        const prods = this.getProductsWithAppliedFilter(this.state.durationActive, this.state.categoryActive)
-        this.setState({ products: prods })
+        this.setState({ products: this.getProductsWithAppliedFilter(this.state.durationActive, this.state.categoryActive) })
       }
     );
   }
@@ -114,12 +112,11 @@ class TaxCalculator extends Component {
     }else{
       active = 'fixed'
     }
-    const prods = this.getProductsWithAppliedFilter(switchType, active)
 
     this.setState({
       categoryActive: active,
       durationActive: switchType,
-      products: prods,
+      products: this.getProductsWithAppliedFilter(switchType, active),
     })
 
     this.trackAction({ trigger: 'DurationChange' })
@@ -132,12 +129,11 @@ class TaxCalculator extends Component {
     }else if(switchType==='both' || switchType==='fixed'){
       active = 'all'
     }
-    const prods = this.getProductsWithAppliedFilter(active, switchType)
 
     this.setState({
       durationActive: active,
       categoryActive: switchType,
-      products: prods
+      products: this.getProductsWithAppliedFilter(active, switchType)
     })
 
     this.trackAction({ trigger: 'SwitchClick' })
@@ -202,11 +198,8 @@ class TaxCalculator extends Component {
     const scope = this
     let items = []
     importedProducts.forEach((e, i) => {
-
       if ((this.notToPromote).indexOf(e.productBank.bank.bic) === -1) {
         let item = {
-          pb: e.productBank,
-          p: e.product,
           productBankBic: e.productBank.bank.bic,
           productBankName: e.productBank.name,
           maturityCode: e.product.maturityCode,
