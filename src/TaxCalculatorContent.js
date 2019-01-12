@@ -23,31 +23,15 @@ function TaxCalculatorContent(props) {
   )
 }
 
-// pure functions
-function calculate(term, params){
-  if (term === 'fixed'){
-    return ((params.amount * params.rate) / 12 * params.duration).toFixed(2).replace('.', ',');
-  } else if(term === 'flex'){
-    return ((params.amount * params.rate)).toFixed(2).replace('.', ',')
-  }
-}
-
 // components
 function Badge(props) {
   const amount = (!Number.isNaN(props.amount) && props.amount >= 0)? props.amount: 0
-  const rate = props.product.rates.rate
-  const duration = props.product.pp.duration
-  const term = props.product.maturityCodeTerm
-  
   const durationActive = props.durationActive==='p.a.' ? 12: props.durationActive
   const categoryActive = props.categoryActive
-
-  // calculate
-  const calculatedAmount = calculate(term, {amount, rate, duration})
-
+  
   // tooltip
   const tooltip = (
-    <Tooltip id="logo-country-tooltip">
+    <Tooltip id="logo-country-tooltip" className="logo-country-tooltip">
       {props.product.pp.showTooltip}
     </Tooltip>
   )
@@ -75,13 +59,13 @@ function Badge(props) {
   }
   
   return (
-    <ul className={hiddenClass} data-term={props.product.maturityCodeTerm}>
-      <li className="calc-item-rate hidden-xs" data-rate={props.product.rates.rate}>{props.product.rates.ratesClear}&nbsp;%
+    <ul className={hiddenClass}>
+      <li className="calc-item-rate hidden-xs">{props.product.rates.ratesClear}&nbsp;%
         <div className="calc-sub-note">
           <span className="rate-explain-text">{props.product.showRatePreview}</span>
         </div>
       </li>
-      <li className="calc-item-maturitycode" data-duration={props.product.pp.duration}>
+      <li className="calc-item-maturitycode">
         <SpecialAnnouncement value={props.product.pp.specialAnnouncement.value} />
         <DurationClear duration={props.product.pp.duration} term={props.product.maturityCodeTerm} />
         <div className="calc-sub-note hidden-xs">
@@ -101,14 +85,14 @@ function Badge(props) {
           </OverlayTrigger>
         </div>
       </li>
-      <li className="calc-item-rate visible-xs-block" data-rate={props.product.rates.rate}>
+      <li className="calc-item-rate visible-xs-block">
         <span className="rate-text-wrapper">{props.product.rates.ratesClear}&nbsp;%</span>
         <div className="calc-sub-note">
           <span className="rate-explain-text">{props.product.showRatePreview}</span>
         </div>
       </li>
       <li className="calc-item-amount hidden-xs">
-        <span className="calc-amount-price">{calculatedAmount}</span>
+        <Price term={props.product.maturityCodeTerm} amount={amount} rate={props.product.rates.rate} duration={props.product.pp.duration} />
         <span className="calc-amount-currency">&euro;</span>
         <div className="calc-sub-note">
           <span className="amount-note-text">Zinsertrag {props.product.showAmountNote} <sup>*</sup></span>
@@ -137,6 +121,10 @@ function Badge(props) {
       </li>
     </ul>
   );
+}
+
+function Price(props) {
+  return <span className="calc-amount-price">{calculate(props.term, props.amount, props.rate, props.duration)}</span>
 }
 
 function SpecialAnnouncement(props) {
@@ -186,6 +174,15 @@ function DurationClear(props){
         {props.duration} Monate
       </span>
     )
+  }
+}
+
+// pure functions
+function calculate(term, amount, rate, duration){
+  if (term === 'fixed'){
+    return ((amount * rate) / 12 * duration).toFixed(2).replace('.', ',');
+  } else if(term === 'flex'){
+    return ((amount * rate)).toFixed(2).replace('.', ',')
   }
 }
 

@@ -134,10 +134,10 @@ class TaxCalculator extends Component {
   }
   
   // Runtime-Methods
-  createContentFromImport(importProducts) {
+  createContentFromImport(importedProducts) {
     const scope = this
     let items = []
-    importProducts.forEach((e, i) => {
+    importedProducts.forEach((e, i) => {
 
       if ((this.notToPromote).indexOf(e.productBank.bank.bic) === -1) {
         let item = {
