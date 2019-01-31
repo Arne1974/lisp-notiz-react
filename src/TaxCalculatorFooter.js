@@ -1,6 +1,6 @@
 import React from 'react';
 
-function TaxCalculatorFooter() {
+const TaxCalculatorFooter = () => {
   return (
     <div className="TaxCalculator-footer">
       <div className="TaxCalculator-footer-text">
