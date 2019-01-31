@@ -4,8 +4,6 @@ import TaxCalculatorHeader from './TaxCalculatorHeader';
 import TaxCalculatorContent from './TaxCalculatorContent';
 import TaxCalculatorFooter from './TaxCalculatorFooter';
 import { BANK_MODULE } from './api';
-import {PRODUCTS} from './files/products';
-import {SCHEMA} from './files/anlageangebote_liste';
 
 class TaxCalculator extends Component {
   constructor(props) {
@@ -61,12 +59,38 @@ class TaxCalculator extends Component {
   }
 
   componentDidMount() {
-    this.schema = SCHEMA
-    this.setInitParameter()
-    this.allProducts = this.createContentFromImport(PRODUCTS)
-
-    this.schema = []
-    this.setState({ products: this.getProductsWithAppliedFilter(this.state.durationActive, this.state.categoryActive) })
+    Promise.all([
+      fetch(this.imports.products)
+        .then(
+          response => {
+            return response.json();
+          }
+        ),
+      fetch(this.imports.schema)
+        .then(
+          response => {
+            return response.json();
+          }
+        )
+    ]).then(
+      values => {
+        this.schema = values[1]
+        this.setInitParameter()
+        this.allProducts = this.createContentFromImport(values[0])
+      }
+    ).catch(
+      error => {
+        this.setState({
+          error: true
+        })
+        console.warn(error)
+      }
+    ).finally(
+      () => {
+        this.schema = []
+        this.setState({ products: this.getProductsWithAppliedFilter(this.state.durationActive, this.state.categoryActive) })
+      }
+    );
   }
 
   // Listener
