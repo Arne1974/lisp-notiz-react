@@ -21,8 +21,8 @@ class TaxCalculator extends Component {
     this.schema = []
     this.allProducts = []
     this.imports = {
-      products: 'http://127.0.0.1:3030/json/products.json',
-      schema: 'http://127.0.0.1:3030/json/anlageangebote_liste.json',
+      products: 'http://localhost:3000/files/products.json',
+      schema: 'http://localhost:3000/files/anlageangebote_liste.json',
     }
     
     this.notToPromote = ['HSHNDEHH', 'CPLUDES1XXX']
